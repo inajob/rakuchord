@@ -31,7 +31,9 @@ h2{
   
   clear:both;
 }
-
+a{
+  word-wrap: break-word;
+}
 p{
   margin: 0px;
   margin-left:1em;
@@ -86,4 +88,7 @@ img.right{
 }
 .right{
   text-align:right;
+}
+.keep{
+  word-break: keep-all;
 }
