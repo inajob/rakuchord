@@ -1,4 +1,4 @@
-# RakuChord
+# RakuChord - らくこーど
 
 楽にそれっぽい演奏ができる楽器です。
 
