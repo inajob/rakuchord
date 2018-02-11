@@ -4,7 +4,7 @@
 
 紹介ページ: https://inajob.github.io/rakuchord/
 
-[![RakuChord紹介動画](http://img.youtube.com/vi/hCYnGipDu9w/0.jpg)](http://www.youtube.com/watch?v=hCYnGipDu9w)
+![RakuChord](docs/imgs/rakuchord-p.jpg)
 
 # ディレクトリ構成
 
