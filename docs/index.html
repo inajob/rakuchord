@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RakuChord(ラクコード) - 楽にそれっぽい演奏ができる楽器</title>
+
+<link rel="stylesheet" href="rakuchord.css">
+<script src="js/markdown-it.min.js"></script>
+
+</head>
+<body>
+
+<h1>RakuChord - らくこーど</h1>
+
+<div class="right">
+<a class="twitter-share-button"
+  href="https://twitter.com/intent/tweet">
+Tweet</a>
+<a href="http://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+</div>
+
+
+<div id="contents">
+
+## RakuChordとは？
+
+楽にそれっぽい演奏ができる楽器です。
+
+右手でメロディ、左手で和音を演奏します。和音はワンキーで演奏できるため、複雑な操作は不要です。
+
+<a href="http://twitter.com/ina_ani" target="_blank">@ina_ani</a>が開発をしています。
+
+
+<img class="right" src="imgs/latest-rakuchord.jpg" />
+<img class="right" src="imgs/many-rakuchord.jpg" />
+
+## 基本操作
+メロディは2オクターブ分のキーを利用できます。和音はダイアトニックコードが利用できます。
+機能呼び出しボタンと同時押しすることで和音を修飾することができます。
+
+<img src="imgs/rakuchord-p.jpg" />
+
+## デモ
+<div class="center">
+  <iframe width="100%" height="480" src="https://www.youtube.com/embed/hCYnGipDu9w" frameborder="0" allowfullscreen></iframe>
+</div>
+
+
+## ハードウェア
+
+- メロディ用ボタン x7x2
+- 和音用ボタン x7
+- 機能呼び出しボタン x7
+- 内臓スピーカ
+- ステレオミニプラグでの外部出力
+- Arduinoと同じCPU（ATMega328）
+- 乾電池駆動
+
+## ソフトウェア
+
+- 8ステップドラムマシン
+- 8ステップアルペジエータ
+- 音色切り替え（矩形波、ノコギリ波、疑似SIN波）
+- デチューンモード
+
+## チートシート
+<img src="imgs/cheatsheet.jpg" />
+
+## ロードマップ
+
+（ロードマップは将来変更される可能性があります）
+
+- [ ] キットの販売？
+- [ ] キットの作成？
+- [done] 紹介ページの作成
+- [done] ケースのデータ化
+- [done] 基板のデータ化
+
+## 開発状況
+
+- 2017/11 Maker Fair 深センに出展 http://inajob.hatenablog.jp/entry/2017/11/15/%E6%B7%B1%E3%82%BB%E3%83%B3%E3%81%AB%E8%A1%8C%E3%81%A3%E3%81%A6%E3%81%8D%E3%81%BE%E3%81%97%E3%81%9F
+- 2017/10? 3Dプリンタ筐体の開発
+- 2017/08 Maker Fair Tokyo 2017に出展 https://twitter.com/ina_ani/statuses/893669017050767360
+- 2017/02 基板発注（上側基板）
+- 2016/08 Maker Fair Tokyo 2016に出展 http://inajob.hatenablog.jp/entries/2016/08/28#1472362805
+- 2016/03 基板発注(本体基板) http://inajob.hatenablog.jp/entry/20160312 
+- 2015/02 木製のケース作成
+- 2014/04 RakuChord for WEB作成（現在非公開 デモ動画あり） http://inajob.hatenablog.jp/entry/20140419
+- 2013/11 Maker Fair Tokyo 2013 出展 http://inajob.hatenablog.jp/entry/20131104 
+- 2012/12 MTM2012出展 http://inajob.hatenablog.jp/entry/20121202/1354458566
+- 2012/10 RakuChord long http://inajob.hatenablog.jp/entry/20121008/1349710882
+- 2012/10 RakuChord Mobile3 http://inajob.hatenablog.jp/entry/20121008/1349710881
+- 2011 Makeに持ち込む http://inajob.hatenablog.jp/entry/20111205/1323092831
+- 2010/04 makegine.jpで紹介された。 http://makezine.jp/blog/2010/04/rakuchord_mobile.html https://makezine.com/2010/04/21/rakuchord-mobile-like-a-pocket-elec/ (English) 
+- 2010 開発開始 http://inajob.hatenablog.jp/entry/20100123/1264249970
+
+
+## 作った人
+- <a href="http://twitter.com/ina_ani" target="_blank">@ina_ani</a> <a href="https://twitter.com/ina_ani?ref_src=twsrc%5Etfw" class="twitter-follow-button" data-show-count="false">Follow @ina_ani</a><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  - blog http://inajob.hatenablog.jp/
+  - 作ったもの一覧 http://inajob.dip.jp/intro/intro.html#work
+
+
+</div>
+
+<div id="render">
+</div>
+
+
+<script>
+  (function(){
+    var elm = document.getElementById("contents");
+    var renderElm = document.getElementById("render");
+    var md = markdownit({html: true, linkify: true});
+    var htmlStr = md.render(elm.innerHTML);
+    renderElm.innerHTML = htmlStr;
+    elm.style.display = "none";
+  })();
+</script>
+</body>
+
+</html>
