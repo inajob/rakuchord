@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RakuChord(らくこーど) - 組み立て説明</title>
+<!-- ogp -->
+<meta name="description" content="RakuChord(らくこーど) の組み立て説明">
+<meta property="og:title"       content="RakuChord(らくこーど) の組み立て説明">
+<meta property="og:description" content="RakuChord(らくこーど) の組み立て説明です">
+<meta property="og:url"         content="https://inajob.github.io/rakuchord/">
+<meta property="og:image"       content="https://inajob.github.io/rakuchord/imgs/rakuchord-p.jpg">
+<meta name="twitter:card"       content="player">
+<meta name="twitter:player"     content="https://www.youtube.com/embed/hCYnGipDu9w?rel=0&amp;controls=0&amp;showinfo=0">
+<meta name="twitter:player:width" content="640">
+<meta name="twitter:player:height" content="360">
+<meta name="twitter:player:stream:content_type" content="video/mp4;">
+<meta name="twitter:site:id"    content="@ina_ani">
+<meta name="twitter:creator"    content="@ina_ani">
+<!-- /ogp -->
+<link rel="stylesheet" href="rakuchord.css">
+<script src="js/markdown-it.min.js"></script>
+</head>
+<body>
+<h1>RakuChord 組み立て説明 - <span class="keep">らくこーど</span></h1>
+<div class="right">
+<a class="twitter-share-button"
+  href="https://twitter.com/intent/tweet">
+Tweet</a>
+<a href="http://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+</div>
+<div id="contents">
+# 概要
+まだキットもないのに組み立て説明を書き始めました。
+
+まだドラフトです。
+
+# 必要工具
+- はんだごて
+- ラジオペンチ
+- ニッパー
+- ワイヤストリッパー
+- 圧着ペンチ
+- テスター（なくてもよい）
+
+<img src="imgs/instruction-out/tools.jpg" />
+
+# 部品の確認
+todo: あとで書く
+
+# 最も低い部品
+高さの低い部品からはんだ付けするのが楽です。
+
+抵抗、コンデンサ、水晶を固定します。いずれも向きは関係ない部品です。
+抵抗は4本のカラーコードで抵抗値がわかるので写真を参考にしてください。コンデンサは「22」と記載されています。
+
+<img src="imgs/instruction-out/000-first-parts.jpg" />
+
+部品の裏はこのようになっています。奥まで差し込んだのちにはんだ付けしてください。
+<img src="imgs/instruction-out/001-first-parts-back.jpg" />
+
+はんだ付け後はニッパーで余った足を切断してください。
+切断した後のワイヤは手に刺さったりして危険なので、一か所にまとめるか、捨ててください。
+<img src="imgs/instruction-out/002-first-parts-pliers.jpg" />
+
+黄色く丸で囲ったところが切断箇所です。今後も足の長い部品ははんだ付け後に足を切断してください。
+<img src="imgs/instruction-out/003-first-parts-complete.jpg" />
+
+# 徐々に背の高い部品へ
+
+徐々に背の高い部品をはんだ付けしていきます。
+スライドスイッチとオーディオジャックをはんだ付けします。
+オーディオジャックは穴ががばがばなので、取り付け時に部品の落下に気を付けてください。（設計ミスです）
+<img src="imgs/instruction-out/004-second-parts-dub.jpg" />
+
+次にコンデンサを2つはんだ付けします。
+よく似ていますが違う容量のコンデンサです。刻印をよく確認してください。コンデンサの向きはどちらでも構いません。
+足が長い部品なので、はんだ付け後に足をニッパーで切断してください。
+<img src="imgs/instruction-out/005-second-parts.jpg" />
+
+作業tipsですが、基板を裏返したときに部品が落ちないように、ワイヤーを図のようにハの字に曲げて、一時的に固定すると作業しやすいです。
+<img src="imgs/instruction-out/006-second-parts-tips.jpg" />
+
+XHコネクタハウジングを固定します。
+向きに注意してください。
+<img src="imgs/instruction-out/007-third-parts-dub.jpg" />
+
+# 初めてのIC
+LM386互換オーディオアンプをはんだ付けします。向きに注意してください。
+ICには目印として丸い凹みがあります。写真に合わせてはんだ付けしてください。
+
+<img src="imgs/instruction-out/008-third-parts.jpg" />
+
+次にLED（発光ダイオード）です。LEDにも向きがあります。
+
+一般的に＋側が足が長いので目印にしてください。またLEDの中をよく見ると形が違うのでそこからも極性を判別することができます。
+
+<img src="imgs/instruction-out/009-forth-parts.jpg" />
+
+同じ部品を横から見たところです。 極性の判定の参考にしてください。
+はんだ付け後は足をニッパーで切断してください。
+
+<img src="imgs/instruction-out/010-forth-parts-tips.jpg" />
+
+次にメインCPUであるATmega328Pを取り付けます。
+あらかじめICソケットに固定したものをはんだ付けします。すべての足をはんだ付けしてください。
+
+このICも向きがあるので注意してください。黄色く丸で囲った部分に半円の凹みがあります。
+
+<img src="imgs/instruction-out/012-fifth-parts.jpg" />
+
+電解コンデンサを取り付けます。容量の表記を確認してください。
+さらに極性があるので向きに注意してください。電解コンデンサは側面にマイナス表示があります。
+基板側には＋の目印が印刷してあるので、参考にしてください。
+
+また、写真のように寝かして固定することを推奨します。（これは製作者の好みなのでどのように固定しても良いです）
+
+<img src="imgs/instruction-out/013-sixth-parts.jpg" />
+
+同じく電解コンデンサを取り付けます。容量の表記を確認してください。
+こちらも極性があるので注意してください。極性は基板の裏面に記載されています（設計ミス）
+
+<img src="imgs/instruction-out/014-seventh-parts.jpg" />
+
+# 電源の作成
+
+乾電池ボックスを用意します。
+
+<img src="imgs/instruction-out/035-battery-case.jpg" />
+
+XHコネクタ用のコンタクトをこのように導線の先にくっつけます
+
+<img src="imgs/instruction-out/036-battery-contact.jpg" />
+
+圧着ペンチで圧着します。
+
+<img src="imgs/instruction-out/037-contact-press.jpg" />
+
+XHコネクタに挿入します。（極性に注意）
+
+<img src="imgs/instruction-out/042-battery-housing.jpg" />
+
+完成です。
+
+<img src="imgs/instruction-out/043-battery-housing2.jpg" />
+
+# スピーカの作成
+
+スピーカと手ごろな長さの導線を用意します。
+
+<img src="imgs/instruction-out/038-speaker-back.jpg" />
+
+導線の両端の被覆をワイヤストリッパーではがします。
+<img src="imgs/instruction-out/039-strip-wire.jpg" />
+
+導線をはんだ付けします。
+<img src="imgs/instruction-out/040-speaker-wired.jpg" />
+
+# 動作テスト
+
+電源スイッチがオフであることを確認し、バッテリーを取り付けます。
+スピーカも取り付け、電源スイッチを入れます。
+
+LEDが点灯するか？、起動音が鳴るか を確認します。
+動作がおかしい場合は、なるべく早く電源ケーブルを抜いて、ここまでの手順を確認してください。
+
+動作確認ができたら、電源をオフにし、バッテリー、スピーカーを取り外します。
+
+<img src="imgs/instruction-out/015-first-test.jpg" />
+
+# タクトスイッチの配置
+
+タクトスイッチの足をラジオペンチでまっすぐにします。
+
+<img src="imgs/instruction-out/016-pin-fix.jpg" />
+
+このようにもともと曲がっている足をすべてまっすぐにします。
+（写真は比較のために片方まっすぐにした状態です。）
+
+<img src="imgs/instruction-out/017-pin-fix-after.jpg" />
+
+足をまっすぐにしたスイッチを取り付けます。微妙に入りにくいので力を入れます。（設計ミス）
+はんだ付けは後でまとめてするので、次に進んでください。
+
+<img src="imgs/instruction-out/018-settle-switch.jpg" />
+
+和音ボタンを一式取り付けます。（はんだ付けはまだです）
+
+<img src="imgs/instruction-out/019-settle-switch2.jpg" />
+
+横から見て、まっすぐに刺さっているか確認します。（写真は色違いですが、気にせずに）
+問題なければ裏面をはんだ付けします。
+
+<img src="imgs/instruction-out/023-switch-check.jpg" />
+
+メロディ（高）のスイッチをも取り付けます。（はんだ付けはまだです）
+
+<img src="imgs/instruction-out/022-switch-high.jpg" />
+
+横から見て、まっすぐに刺さっているか確認します。
+問題なければ裏面をはんだ付けします。
+
+<img src="imgs/instruction-out/023-switch-check.jpg" />
+
+メロディ（低）のスイッチも取り付けます。（はんだ付けはまだです）
+
+<img src="imgs/instruction-out/024-switch-low.jpg" />
+
+横から見て、まっすぐに刺さっているか確認します。
+問題なければ裏面をはんだ付けします。
+
+<img src="imgs/instruction-out/025-switch-check-second.jpg" />
+
+メイン基板の作成はこれで完了です。
+
+# サブ基板の作成
+
+サブ基板にタクトスイッチを押し込みます。
+
+<img src="imgs/instruction-out/027-subboard.jpg" />
+
+はんだ付けします。
+
+<img src="imgs/instruction-out/029-subboard-back-after.jpg" />
+
+L字ピンヘッダとピンソケットを差し込みます。
+
+<img src="imgs/instruction-out/030-connector.jpg" />
+
+サブ基板に先ほどのL字ピンヘッダを差し込みます。
+
+<img src="imgs/instruction-out/031-connector-settle.jpg" />
+
+この状態でタクトスイッチのある側からはんだ付けします。
+
+<img src="imgs/instruction-out/032-subboard-complete.jpg" />
+
+# 基板の合体
+
+サブ基板をケースに写真のように固定します。。
+
+<img src="imgs/instruction-out/033-subboard-case.jpg" />
+
+メインボードを重ねます。ソケットの足を基板に合わせて、この状態ではんだ付けします。
+はんだ付けしたら一度基板とケースを外します。
+
+<img src="imgs/instruction-out/034-mainboard-case.jpg" />
+
+# 組み立て
+
+スピーカーをケースに写真のように固定します。
+
+<img src="imgs/instruction-out/041-speaker-case.jpg" />
+
+電池ボックスを写真のように固定し、ねじで電池ボックスを固定します。
+
+<img src="imgs/instruction-out/044-battery-case.jpg" />
+
+メインボードとサブボードをくっつけたものを、、、
+
+<img src="imgs/instruction-out/045-main-sub-board.jpg" />
+
+写真のようにケースに差し込みます。
+<img src="imgs/instruction-out/046-main-sub-case.jpg" />
+
+スピーカと、バッテリーのケーブルを写真のように引き出します。
+
+<img src="imgs/instruction-out/047-wired.jpg" />
+
+
+# 配線とテスト
+
+電源を一度OFFにし、配線を行います。
+
+<img src="imgs/instruction-out/048-wired-complete.jpg" />
+
+電源をONにし、LEDが点灯するか。起動音がするかを確認します。
+和音ボタンや、メロディボタンを押して音が鳴るかも確認します。
+
+問題がある場合は、なるべく早く電源ケーブルを抜いて、ここまでの手順を確認してください。
+
+<img src="imgs/instruction-out/049-second-test.jpg" />
+
+# 最終組み立て
+
+上側ケースをかぶせます。ケーブルの取り回しに注意してください。
+ボタンの土台の四角い部分が上側ケースに対して飛び出すまではめ込んでください。（設計ミス）
+
+<img src="imgs/instruction-out/050-top-case.jpg" />
+
+ねじとナットを用意します。
+
+<img src="imgs/instruction-out/051-bolts-nuts.jpg" />
+
+ねじをまっすぐに入れ、下からナットで止めます。
+
+<img src="imgs/instruction-out/052-bolts.jpg" />
+<img src="imgs/instruction-out/054-bolts-back.jpg" />
+
+スピーカ側も同様。
+<img src="imgs/instruction-out/055-bolts-second.jpg" />
+<img src="imgs/instruction-out/056-bolts-second-back.jpg" />
+
+# 完成
+お疲れさまでした。
+
+<img src="imgs/instruction-out/057-complete.jpg" />
+
+
+</div>
+<div id="render">
+</div>
+<script>
+  (function(){
+    var elm = document.getElementById("contents");
+    var renderElm = document.getElementById("render");
+    var md = markdownit({html: true, linkify: true});
+    var htmlStr = md.render(elm.innerHTML);
+    renderElm.innerHTML = htmlStr;
+    elm.style.display = "none";
+  })();
+</script>
+</body>
+</html>
