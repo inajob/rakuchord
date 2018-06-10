@@ -46,6 +46,12 @@ img{
   border-radius: 32px;
   margin: 1em;
 }
+img.parts{
+  border: none;
+  width:100px;
+  border-radius: 3px;
+  margin: 0em;
+}
 table{
   border: solid 1px;
 }
