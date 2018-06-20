@@ -53,10 +53,13 @@ img.parts{
   margin: 0em;
 }
 table{
-  border: solid 1px;
+  margin: 1em;
+  border: solid 12px #99f;
+  border-radius: 16px;
 }
 td{
-  border: solid 1px;
+  border: solid 3px #99f;
+  border-radius: 16px;
 }
 
 @media screen and (min-width:300px){

@@ -27,6 +27,7 @@ byte gmode = M_PLAY;
 boolean gsetting = false;
 
 char octave = 1;
+char croctave = 1; // 和音相対オクターブ
 char shiftTone = 12;
 char shiftMagic = 0;
 #define M_NONE 0
@@ -38,6 +39,9 @@ byte shiftMode = M_NONE;
 byte apos = 0;
 byte aseq[]= {1, 2, 3, 0, 1, 2, 3, 0};
 boolean galpe = false;
+
+unsigned int rythmCount = 0;
+unsigned int alpeCount = 0;
 
 int aV[] = {0,0,0,0};
 
@@ -77,6 +81,11 @@ int getMiddleMinorTone(byte no){
   return 0; //error
 }
 
+int shift(int n, int s){
+  if(s > 0)return n >> s;
+  return n << (-s);
+}
+
 void setChord(byte no){
   if(galpe){
     byte tmp = magic[no + 2] - magic[no];
@@ -85,30 +94,30 @@ void setChord(byte no){
         case 4: middle = getMiddleMajorTone(no);break;
         case 3: middle = getMiddleMinorTone(no);break;
     }
-    unsigned int alpeTones[] = {getTone(no) >> 1, getTone(no), middle, getTone(no + 4)};
+    unsigned int alpeTones[] = {getTone(no) >> 1, getTone(no), middle, getTone(no + 4), 0};
 
-    d[1] = (alpeTones[aseq[apos]] << 1);
+    d[1] = shift(alpeTones[aseq[apos]],croctave);
     vol[1] = ALPE_VOL;
 
   }else{
     // not alpe mode
     vol[1] = LOW_VOL;
-    d[1] = getTone(no);
+    d[1] = shift(getTone(no),croctave);
 
     vol[2] = MID_VOL;
     byte tmp = magic[no + 2] - magic[no];
     switch(tmp){
-      case 4: d[2] = getMiddleMajorTone(no); break;
-      case 3: d[2] = getMiddleMinorTone(no); break;
+      case 4: d[2] = shift(getMiddleMajorTone(no),croctave); break;
+      case 3: d[2] = shift(getMiddleMinorTone(no),croctave); break;
     }
 
     vol[3] = LOW_VOL;
-    d[3] = getTone(no + 4);
+    d[3] = shift(getTone(no + 4),croctave);
   }
 }
 void setShift(byte no){
   switch(no){
-    case 6: 
+    case 6:
       break;
     case 3: shiftTone -=1;break;
     case 4: shiftTone = 12;break;
@@ -118,25 +127,25 @@ void setShift(byte no){
     case 2: shiftMode = M_MINOR;break;
   }
 }
-
-#define DSPPED 1200
-unsigned int rSpeed = DSPPED;
-byte mEnvMode = 0;
-byte cEnvMode = 0;
-
-void setStepShift(byte no){
+void setSynthShift(byte no){
   switch(no){
-    case 6: 
+    case 6:
       break;
-    case 0: rSpeed -=64;break;
-    case 1: rSpeed = DSPPED;break;
-    case 2: rSpeed +=64;break;
-    //case 3: shiftMode = M_SUS4;break;
-    //case 4: shiftMode = M_MAJOR;break;
-    //case 5: shiftMode = M_MINOR;break;
+    case 0: croctave = -3;break;
+    case 1: croctave = -2;break;
+    case 2: croctave = -1;break;
+    case 3: croctave = 0;break;
+    case 4: croctave = 1;break;
+    case 5: croctave = 2;break;
   }
 }
 
+
+#define DSPPED 1200
+unsigned int rSpeed = DSPPED;
+int arSpeed = 0; // alpe speed
+byte mEnvMode = 0;
+byte cEnvMode = 0;
 
 byte rpos = 0;
 byte rseq[]= {
@@ -150,6 +159,28 @@ byte rseq[]= {
   0x3f
   };
 boolean grythm = false;
+
+void setStepShift(byte no){
+  switch(no){
+    case 6:
+      break;
+    case 0: rSpeed -=64;break;
+    case 1: rSpeed = DSPPED;break;
+    case 2: rSpeed +=64;break;
+  }
+}
+void setAlpeShift(byte no){
+  switch(no){
+    case 6:
+      break;
+    case 0: arSpeed = 2; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 0;break;
+    case 1: arSpeed = 1; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 0;break;
+    case 2: arSpeed = 0; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 0;break;
+    case 3: arSpeed = -1; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 0;break;
+    case 4: arSpeed = -2;alpeCount = 0;apos = 0; rythmCount = 0;rpos = 0;break;
+    case 5: arSpeed = -3; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 0;break;
+  }
+}
 
 void setStep(byte n){
   switch(rseq[n]){
@@ -258,6 +289,12 @@ void triggerOn(byte n){
           setTone(n);
         }else if(n < 21){
           setChord(n - 14);
+        }else{
+          if(n < 28){
+            if(trigger[n] == 0){
+              setSynthShift(n - 21);
+            }
+          }
         }
         break;
       case M_MENV:
@@ -302,7 +339,7 @@ void triggerOn(byte n){
             }
           }
           if(n < 28){
-            setStepShift(n - 21);
+            setAlpeShift(n - 21);
           }
         }
         if(14 <= n && n < 21){
@@ -397,9 +434,6 @@ int count = 0;
 byte bcount = 0;
 byte rcount = 0;
 byte bscan = 0;
-
-unsigned int rythmCount = 0;
-unsigned int alpeCount = 0;
 
 void loop(){
   if(rythmCount == 0){
@@ -590,7 +624,7 @@ void loop(){
     rythmCount = 0;
   }
   alpeCount = (alpeCount + 1);
-  if(alpeCount > (rSpeed >> 1)){
+  if(alpeCount > (shift(rSpeed, arSpeed))){
     alpeCount = 0;
   }
 }
