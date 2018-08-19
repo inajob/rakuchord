@@ -2,10 +2,10 @@ include <polyScrewThread_r1.scad>;
 
 
 module screw_hole(r=2.5){
-    translate([92/2 - 5, 92/2 + 1,0]) circle(r);
+    translate([92/2 - 5, 92/2-2 + 1,0]) circle(r);
     translate([92/2 - 5, -92/2 + 3,0]) circle(r);
 
-    translate([-92/2 + 5, 92/2 + 1,0]) circle(r);
+    translate([-92/2 + 5, 92/2-2 + 1,0]) circle(r);
     translate([-92/2 + 5, -92/2 + 3,0]) circle(r);
 }
 
@@ -38,16 +38,19 @@ module upper_case_outer(height = 10){
                 minkowski()
                 {
                   // base board
-                  base_board();
+                  union(){
+                    base_board();
+                    translate([0,-5,0])base_board();
+                  }
                   // margin
                   circle(margin);
                 }
             }
         }
         translate([92/2, 100/2,0]) hemi_sphere(margin);
-        translate([92/2, -100/2,0]) hemi_sphere(margin);
+        translate([92/2, -100/2-5,0]) hemi_sphere(margin);
         translate([-92/2, 100/2,0]) hemi_sphere(margin);
-        translate([-92/2, -100/2,0]) hemi_sphere(margin);
+        translate([-92/2, -100/2-5,0]) hemi_sphere(margin);
     }
     translate([0,0, 5]) rotate([0,180,0]) linear_extrude(height = height/2 + margin) hull(){
       translate([93/2 ,100/2 + 2,0]) circle(8);
@@ -61,7 +64,8 @@ module upper_hole(){
 }
 
 module key1_space(){
-  translate([12,100/2 - 5,1]) square([25,5]);
+  translate([12+8,100/2 - 1,1]) square([23,3]); // key1
+  translate([-6,100/2 - 5,1]) square([25,3]); // key1
 }
 
 module cable_hole(){
@@ -69,7 +73,8 @@ module cable_hole(){
 }
 
 module jack_diff(){
-    translate([16,-40,3]) rotate([90,0,0]) linear_extrude(height=20){
+    translate([14,-40,3]) rotate([90,0,0]) linear_extrude(height=20){
+       translate([0,5,0])square([10,10], center = true);
        circle(5);
     }
 }
@@ -90,7 +95,7 @@ module jack_diff(){
 }
 
 
-difference(){
+*difference(){
     upper_case_outer();
     translate([0,0,-10])linear_extrude(height=20){
       screw_hole();
@@ -104,7 +109,7 @@ difference(){
             circle(1);
         }
     }
-    translate([0,0,1])linear_extrude(height=3){
+    translate([0,0,2])linear_extrude(height=5){
       key1_space();
     }
     jack_diff();
@@ -119,7 +124,7 @@ module lower_case_outer(){
       translate([93/2 ,100/2 + 2,0]) circle(5, $fn=50);
       translate([-93/2 ,100/2 + 2,0]) circle(5, $fn=50);
     }
-    square([95, 100], center = true);
+    square([95, 100+10], center = true);
     hull(){
         translate([93/2 -1 ,-100/2,0]) circle(2, $fn=50);
         translate([-93/2 +1 ,-100/2,0]) circle(2, $fn=50);
@@ -127,19 +132,19 @@ module lower_case_outer(){
 }
 
 module lower_case_inner(){
-    square([95 - 6, 100], center = true);
+    square([95 - 6, 105], center = true);
     translate([0,52,0]) square([94, 3], center = true);
     translate([0,50,0]) square([93 - 8, 3], center = true);
 
-    translate([0,55,0]) square([93 - 15, 5], center = true);
-    translate([0,-50,0]) square([57, 5], center = true);
+    translate([0,55,0]) square([93 - 15+10, 5], center = true);
+    translate([0,-50,0]) square([57, 5+10], center = true);
 }
 
 *sub_board();
 
 module speaker_hold(){
     linear_extrude(height = 20){
-        translate([-94/2 + 12,-50 + 5 + 10/2,0]) scale(5) {
+        translate([-94/2 + 12,-50 + 5 + 10/2-5,0]) scale(5) {
             translate([-2,-1,0]) square([1, 2]);
             mirror([0,1,0]) polygon([[-1,-1],[1,-1],[1,0],[0,1],[-1,1]]);
             translate([-2,-2,0]) square([1.5,1]);
@@ -189,7 +194,7 @@ translate([0,0,-34]){
             speaker_hold();
             mirror([-1,0,0]) speaker_hold();
             linear_extrude(height = 25){
-                translate([44,-51,0]){
+                translate([44,-51-5,0]){
                     circle(3.5, $fn=20);
                 }
             }
@@ -227,7 +232,7 @@ module battery_holder(){
         } 
     }
 }
-battery_holder();
+*battery_holder();
 
 module bolts(){
     hg = 8;  // height
@@ -238,5 +243,5 @@ module bolts(){
     hex_screw(cod,sth,clf,20,1.5,2,15,5,0,0);
 }
 
-translate([20,20,0]) bolts();
-translate([-20,20,0]) bolts();
+*translate([20,20,0]) bolts();
+*translate([-20,20,0]) bolts();
