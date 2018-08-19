@@ -12,3 +12,8 @@
   - github pages用ページ
 - firmware
   - 本体firmware
+- model
+  - 筐体データ
+- circuit
+  - 回路図
+
