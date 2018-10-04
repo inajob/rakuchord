@@ -6,8 +6,13 @@
 // rakuchord first - 0
 // rakuchord rev2
 
+#include <SPI.h>
+#include <Wire.h>
+#include <U8x8lib.h>
 #include <tones.h>
 #include <MultiTunes.h>
+
+U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(U8X8_PIN_NONE);
 
 byte trigger[] = {
   0, 0, 0, 0, 0, 0, 0,
@@ -87,6 +92,16 @@ int shift(int n, int s){
 }
 
 void setChord(byte no){
+  char buf[32];
+  static byte pre = 0;
+  if(pre != no){
+    pre = no;
+    sprintf(buf, "chord %d", no);
+    TIMSK1 = 0;
+    lcdDraw(buf);
+    TIMSK1 = 1<<TOIE1;
+  }
+
   if(galpe){
     byte tmp = magic[no + 2] - magic[no];
     unsigned int middle;
@@ -382,8 +397,21 @@ void triggerOff(byte n){
   }
 }
 
+void lcdSetup(){
+  u8x8.begin();
+  u8x8.setFont(u8x8_font_chroma48medium8_r);
+  u8x8.drawString(0,1,"Hello");
+  u8x8.drawString(0,2,"RakuChord");
+}
+
+void lcdDraw(char* s){
+  u8x8.drawString(0,4, s);
+}
+
+
 void setup(){
   soundSetup();
+  lcdSetup();
   
   mkWave(0);
   
