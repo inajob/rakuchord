@@ -8,11 +8,10 @@
 
 #include <SPI.h>
 #include <Wire.h>
-#include <U8x8lib.h>
 #include <tones.h>
 #include <MultiTunes.h>
 
-U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(U8X8_PIN_NONE);
+#define ADDRESS_OLED 0x3C
 
 byte trigger[] = {
   0, 0, 0, 0, 0, 0, 0,
@@ -94,11 +93,13 @@ int shift(int n, int s){
 void setChord(byte no){
   char buf[32];
   static byte pre = 0;
-  if(pre != no){
+  static byte preAdd = M_NONE;
+  if(pre != no || preAdd != shiftMode){
     pre = no;
+    preAdd = shiftMode;
     sprintf(buf, "chord %d", no);
     TIMSK1 = 0;
-    lcdDraw(buf);
+    lcdDraw(no, shiftMode);
     TIMSK1 = 1<<TOIE1;
   }
 
@@ -398,20 +399,502 @@ void triggerOff(byte n){
 }
 
 void lcdSetup(){
-  u8x8.begin();
-  u8x8.setFont(u8x8_font_chroma48medium8_r);
-  u8x8.drawString(0,1,"Hello");
-  u8x8.drawString(0,2,"RakuChord");
+  Wire.begin();
+  Wire.setClock(400000L);
+  delay(100);
+    
+  Wire.beginTransmission(ADDRESS_OLED);//※このバイトも含め、以後、合計32byteまで送信できる
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xAE); //display off
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0xA8); //Set Multiplex Ratio  0xA8, 0x3F
+        Wire.write(0b00111111); //64MUX
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)    
+      Wire.write(0xD3); //Set Display Offset 0xD3, 0x00
+        Wire.write(0x00);
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0x40); //Set Display Start Line 0x40
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xA0); //Set Segment re-map 0xA0/0xA1
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xC0); //Set COM Output Scan Direction 0xC0,/0xC8
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0xDA); //Set COM Pins hardware configuration 0xDA, 0x02
+        Wire.write(0b00010010);
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0x81); //Set Contrast Control 0x81, default=0x7F
+        Wire.write(255); //0-255
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xA4); //Disable Entire Display On
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0xA6); //Set Normal Display 0xA6, Inverse display 0xA7
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0xD5); //Set Display Clock Divide Ratio/Oscillator Frequency 0xD5, 0x80
+        Wire.write(0b10000000);
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0x20); //Set Memory Addressing Mode
+        Wire.write(0x10); //Page addressing mode
+  Wire.endTransmission();
+  Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0x22); //Set Page Address
+        Wire.write(0); //Start page set
+        Wire.write(7); //End page set
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0x21); //set Column Address
+        Wire.write(0); //Column Start Address
+        Wire.write(127); //Column Stop Address
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0x8D); //Set Enable charge pump regulator 0x8D, 0x14
+        Wire.write(0x14);
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xAF); //Display On 0xAF
+  Wire.endTransmission();
+
+  delay(10);
+}
+uint8_t display[64]={
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+  0b00000000, 0b00000000,0b00000000, 0b00000000,
+
+/*
+  0b00000111, 0b10000000,0b00000000, 0b00000000,
+  0b00001111, 0b11000000,0b00000000, 0b00000000,
+  0b00011111, 0b11100000,0b00000000, 0b00000000,
+  0b00111111, 0b11110000,0b00000000, 0b00000000,
+  0b01111100, 0b11111000,0b00000000, 0b00000000,
+  0b11111000, 0b01111100,0b00000000, 0b00000000,
+  0b11110000, 0b00111100,0b00000000, 0b00000000,
+  0b11110000, 0b00111100,0b00000000, 0b00000000,
+  0b11111111, 0b11111100,0b00000000, 0b00000000,
+  0b11111111, 0b11111100,0b11100000, 0b11100000,
+  0b11111111, 0b11111100,0b11100000, 0b11101010,
+  0b11111111, 0b11111100,0b10000000, 0b10001010,
+  0b11110000, 0b00111100,0b11101010, 0b11101010,
+  0b11110000, 0b00111100,0b00101010, 0b00101111,
+  0b11110000, 0b00111100,0b11101010, 0b11100010,
+  0b11110000, 0b00111100,0b11101110, 0b11100010,
+  */
+};
+uint8_t dataA[8]={
+  0b11111100,
+  0b11111110,
+  0b00110011,
+  0b00110011,
+  0b00110011,
+  0b11111110,
+  0b11111100,
+  0b00000000,
+};
+uint8_t dataB[8]={
+  0b11111111,
+  0b11111111,
+  0b11011011,
+  0b11011011,
+  0b11011011,
+  0b11111111,
+  0b01101110,
+  0b00000000,
+};
+uint8_t dataC[8]={
+  0b00111100,
+  0b01111110,
+  0b11100111,
+  0b11000011,
+  0b11000011,
+  0b11100111,
+  0b01100110,
+  0b00000000
+};
+uint8_t dataD[8] = {
+  0b11111111,
+  0b11111111,
+  0b11000011,
+  0b11000011,
+  0b11000011,
+  0b01111110,
+  0b00111100,
+  0b00000000
+};
+uint8_t dataE[8]={
+  0b11111111,
+  0b11111111,
+  0b11011011,
+  0b11011011,
+  0b11011011,
+  0b11011011,
+  0b00000000,
+  0b00000000,
+};
+uint8_t dataF[8]={
+  0b11111111,
+  0b11111111,
+  0b00011011,
+  0b00011011,
+  0b00011011,
+  0b00011011,
+  0b00000000,
+  0b00000000,
+};
+uint8_t dataG[8]={
+  0b00111100,
+  0b01111110,
+  0b11100111,
+  0b11000011,
+  0b11010011,
+  0b11110111,
+  0b11110110,
+  0b00000000
+};
+
+uint8_t dataSus4[16]={
+  0b10111011, 0b10101110,
+  0b10101010, 0b00101010,
+  0b11101011, 0b10111010,
+  0b00000000, 0b00000000,
+  0b00111000, 0b00000000,
+  0b00100000, 0b00000000,
+  0b11111000, 0b00000000,
+  0b00000000, 0b00000000,
+
+/*
+  0b11100000, 0b11100000,
+  0b11100000, 0b11101010,
+  0b10000000, 0b10001010,
+  0b11101010, 0b11101010,
+  0b00101010, 0b00101111,
+  0b11101010, 0b11100010,
+  0b11101110, 0b11100010,
+  */
+};
+uint8_t dataMinor[16]={
+  0b11100000, 0b00000000,
+  0b11110000, 0b00000000,
+  0b00010000, 0b00000000,
+  0b11110000, 0b00000000,
+  0b11110000, 0b00000000,
+  0b00010000, 0b00000000,
+  0b11110000, 0b00000000,
+  0b11100000, 0b00000000,
+
+/*
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b01111110, 0b00000000,
+  0b11011011, 0b00000000,
+  0b11011011, 0b00000000,
+  0b11011011, 0b00000000,
+  */
+};
+uint8_t dataMajor[16]={
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+};
+
+uint8_t logo[64]={
+/*
+  0b00000111, 0b10000000,0b00000000, 0b00000000,
+  0b00001111, 0b11000000,0b00000000, 0b00000000,
+  0b00011111, 0b11100000,0b00000000, 0b00000000,
+  0b00111111, 0b11110000,0b00000000, 0b00000000,
+  0b01111100, 0b11111000,0b00000000, 0b00000000,
+  0b11111000, 0b01111100,0b00000000, 0b00000000,
+  0b11110000, 0b00111100,0b00000000, 0b00000000,
+  0b11110000, 0b00111100,0b00000000, 0b00000000,
+
+  0b11111111, 0b11111100,0b00000000, 0b00000000,
+  0b11111111, 0b11111100,0b11100000, 0b11100000,
+  0b11111111, 0b11111100,0b11100000, 0b11101010,
+  0b11111111, 0b11111100,0b10000000, 0b10001010,
+  0b11110000, 0b00111100,0b11101010, 0b11101010,
+  0b11110000, 0b00111100,0b00101010, 0b00101111,
+  0b11110000, 0b00111100,0b11101010, 0b11100010,
+  0b11110000, 0b00111100,0b11101110, 0b11100010,
+*/
+
+0b00000000,0b00000000,0b00000000,0b00000000,
+0b00000000,0b00000000,0b00000000,0b00000000,
+0b00000000,0b00000000,0b00000000,0b00110000,
+0b00001110,0b01001010,0b10100000,0b00101000,
+0b00001010,0b10101010,0b10100000,0b00101000,
+0b00001100,0b11101100,0b10100000,0b01100000,
+0b00001010,0b10101010,0b11100000,0b01100000,
+0b00000000,0b00000000,0b00000000,0b00000000,
+
+0b00000000,0b11101001,0b01110111,0b01100000,
+0b00000000,0b10001001,0b01010101,0b01010000,
+0b00000000,0b10001111,0b01010110,0b01010000,
+0b00000000,0b11101001,0b01110101,0b01100000,
+0b00000000,0b00000000,0b00000000,0b00000000,
+0b00000000,0b00000000,0b00000000,0b00000000,
+0b00000000,0b00000000,0b00000000,0b00000000,
+0b00000000,0b00000000,0b00000000,0b00000000,
+
+/*
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b01111000,
+  0b00000000, 0b00101000,
+  0b00000000, 0b01011000,
+  0b00000000, 0b00000000,
+
+  0b00001111, 0b01110000,
+  0b00001001, 0b00101000,
+  0b00001001, 0b01110000,
+  0b00000000, 0b00000000,
+  0b00001111, 0b01111000,
+  0b00000100, 0b00100000,
+  0b00000100, 0b01011000,
+  0b00001111, 0b00000000,
+
+  0b00000000, 0b01111000,
+  0b00001111, 0b01000000,
+  0b00001001, 0b01111000,
+  0b00001111, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00001111, 0b00000000,
+  0b00000101, 0b00000000,
+  0b00001011, 0b00000000,
+
+  0b00000000, 0b00000000,
+  0b00001111, 0b01100000,
+  0b00001001, 0b01111100,
+  0b00000110, 0b00000100,
+  0b00000000, 0b00011000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  0b00000000, 0b00000000,
+  */
+
+};
+
+
+byte defaultAdd[] = {
+ M_MAJOR, // C
+ M_MINOR, // Dm
+ M_MINOR, // Em
+ M_MAJOR, // F
+ M_MAJOR, // G
+ M_MINOR, // Am
+ M_MINOR, // Bm
+};
+
+void lcdDraw(byte scale,byte add){
+  uint8_t* scaleBmp;
+  uint8_t* addBmp;
+  switch(scale){
+    case 0:  scaleBmp = dataC;break;
+    case 1:  scaleBmp = dataD;break;
+    case 2:  scaleBmp = dataE;break;
+    case 3:  scaleBmp = dataF;break;
+    case 4:  scaleBmp = dataG;break;
+    case 5:  scaleBmp = dataA;break;
+    case 6:  scaleBmp = dataB;break;
+  }
+  if(add == M_NONE){
+    add = defaultAdd[scale];
+  }
+  switch(add){
+    case M_MINOR: addBmp = dataMinor;break;
+    case M_MAJOR: addBmp = dataMajor;break;
+    case M_SUS4:  addBmp = dataSus4;break;
+  }
+
+  for(int i = 0; i < 8; i ++){
+    display[i * 4] = scaleBmp[i];
+  }
+  for(int i = 0; i < 16; i ++){
+    display[32 + i/2*4 + i%2] = addBmp[i];
+  }
+
+
+  Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xB0); //set page start address←垂直開始ページはここで決める(B0～B7)
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0x21); //set Column Address
+        Wire.write(0); //Column Start Address←水平開始位置はここで決める(0～127)
+        Wire.write(127-64); //Column Stop Address　画面をフルに使う
+  Wire.endTransmission();
+
+  for(int j = 0; j < 32; j ++){
+     if(j%4 == 2 || j%4 ==3)continue;
+      for(int i=0; i<8; i++){
+        if(i%2 == 0){
+          Wire.beginTransmission(ADDRESS_OLED);
+          Wire.write(0b01000000);
+        }
+        for(int k=0; k<4; k++){
+          Wire.write(((display[j/4*8 + j%4] & (1<<(7-i%8)))?0x0f:0x00) | ((display[j/4*8 + j%4 + 4] & (1<<(7-i%8)))?0xf0:0x00));
+        }
+        if(i%2 == 1){
+          Wire.endTransmission();
+        }
+      }
+  }
 }
 
-void lcdDraw(char* s){
-  u8x8.drawString(0,4, s);
+inline uint8_t doubleHead(uint8_t x){
+  return
+    /*
+    ((0b00010000 & x)>>4) |
+    ((0b00010000 & x)>>3) |
+    ((0b00100000 & x)>>3) |
+    ((0b00100000 & x)>>2) |
+    ((0b01000000 & x)>>2) |
+    ((0b01000000 & x)>>1) |
+    ((0b10000000 & x)>>1);
+    */
+
+    ((0b10000000 & x)>>7) |
+    ((0b10000000 & x)>>6) |
+    ((0b01000000 & x)>>4) |
+    ((0b01000000 & x)>>3) |
+    ((0b00100000 & x)) |
+    ((0b00100000 & x)>>1) |
+    ((0b00010000 & x)<<2) |
+    ((0b00010000 & x)<<3);
+
+}
+inline uint8_t doubleTail(uint8_t x){
+  return
+  /*
+    ((0b00001000 & x)<<4) |
+    ((0b00001000 & x)<<3) |
+    ((0b00000100 & x)<<3) |
+    ((0b00000100 & x)<<2) |
+    ((0b00000010 & x)<<2) |
+    ((0b00000010 & x)<<1) |
+    ((0b00000001 & x)<<1);
+    */
+    ((0b00001000 & x)>>3) |
+    ((0b00001000 & x)>>2) |
+    ((0b00000100 & x)<<1) |
+    ((0b00000100 & x)) |
+    ((0b00000010 & x)<<3) |
+    ((0b00000010 & x)<<4) |
+    ((0b00000001 & x)<<6) |
+    ((0b00000001 & x)<<7);
+
+
+}
+
+void logoDraw(){
+  Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xB0); //set page start address←垂直開始ページはここで決める(B0～B7)
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0x21); //set Column Address
+        Wire.write(64); //Column Start Address←水平開始位置はここで決める(0～127)
+        Wire.write(127); //Column Stop Address　画面をフルに使う
+  Wire.endTransmission();
+
+  for(int j = 15; j >= 0; j --){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleHead(logo[j*4 + 0]));
+    Wire.write(doubleHead(logo[j*4 + 0]));
+    Wire.write(doubleHead(logo[j*4 + 0]));
+    Wire.write(doubleHead(logo[j*4 + 0]));
+    Wire.endTransmission();
+  }
+  for(int j = 15; j >= 0; j --){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.endTransmission();
+  }
+  for(int j = 15; j >= 0; j --){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.endTransmission();
+  }
+  for(int j = 15; j >= 0; j --){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.endTransmission();
+  }
+  for(int j = 15; j >= 0; j --){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.endTransmission();
+  }
+  for(int j = 15; j >= 0; j --){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.endTransmission();
+  }
+  for(int j = 15; j >= 0; j --){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleHead(logo[j*4 + 3]));
+    Wire.write(doubleHead(logo[j*4 + 3]));
+    Wire.write(doubleHead(logo[j*4 + 3]));
+    Wire.write(doubleHead(logo[j*4 + 3]));
+    Wire.endTransmission();
+  }
+  for(int j = 15; j >= 0; j --){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleTail(logo[j*4 + 3]));
+    Wire.write(doubleTail(logo[j*4 + 3]));
+    Wire.write(doubleTail(logo[j*4 + 3]));
+    Wire.write(doubleTail(logo[j*4 + 3]));
+    Wire.endTransmission();
+  }
+
+
+
+
 }
 
 
 void setup(){
   soundSetup();
   lcdSetup();
+  logoDraw();
   
   mkWave(0);
   
