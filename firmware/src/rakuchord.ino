@@ -10,6 +10,7 @@
 #include <Wire.h>
 #include <tones.h>
 #include <MultiTunes.h>
+#include <font.h>
 
 #define ADDRESS_OLED 0x3C
 
@@ -39,6 +40,7 @@ char shiftMagic = 0;
 #define M_MINOR 2
 #define M_SUS4 3
 byte shiftMode = M_NONE;
+byte glideMode = 0;
 
 byte apos = 0;
 byte aseq[]= {1, 2, 3, 0, 1, 2, 3, 0};
@@ -48,14 +50,15 @@ unsigned int rythmCount = 0;
 unsigned int alpeCount = 0;
 
 int aV[] = {0,0,0,0};
+byte toneCount = 0;
 
 inline int getTone(byte no){
   return  (tones[shiftMagic + magic[no] + shiftTone]) << (octave);
 }
 
-void setTone(byte no){
+void setTone(byte no, byte p){
   vol[0] = 14;
-  d[0] = getTone(no);
+  d[0] = getTone(no) + ((glideMode == 1)?(p-255):0);
   if(vf){ // detune
     vol[4] = 8;
     d[4] = getTone(no) + (getTone(no) >> 6);
@@ -135,9 +138,12 @@ void setShift(byte no){
   switch(no){
     case 6:
       break;
+    //case 3: shiftTone -=1;break;
+    //case 4: shiftTone = 12;break;
+    //case 5: shiftTone +=1;break;
     case 3: shiftTone -=1;break;
     case 4: shiftTone = 12;break;
-    case 5: shiftTone +=1;break;
+    case 5: glideMode = 1;break;
     case 0: shiftMode = M_SUS4;break;
     case 1: shiftMode = M_MAJOR;break;
     case 2: shiftMode = M_MINOR;break;
@@ -229,6 +235,61 @@ void clearAStep(){
   }
 }
 
+void drawText(char* buf, byte y){
+  Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xB0 + y); //set page start address←垂直開始ページはここで決める(B0～B7)
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0x21); //set Column Address
+        Wire.write(0); //Column Start Address←水平開始位置はここで決める(0～127)
+        Wire.write(127); //Column Stop Address　画面をフルに使う
+  Wire.endTransmission();
+
+  //for(int j = 0; j < 32; j ++){ // 128/4 = 32
+    while(*buf != 0){
+      Wire.beginTransmission(ADDRESS_OLED);
+      Wire.write(0b01000000);
+      for(int i = 0; i < 4; i ++){
+        Wire.write(pgm_read_byte_near(&(font[*buf-' '][i])));
+      }
+      Wire.write(0x00);
+      Wire.endTransmission();
+      buf++;
+    }
+  //}
+}
+
+void drawDisplay(){
+  drawText("RAKU CHORD",0);
+
+  if(galpe){
+    drawText("ALPE  :OFF",1);
+  }else{
+    drawText("ALPE  :ON ",1);
+  }
+  if(grythm){
+    drawText("RYTHM :OFF",2);
+  }else{
+    drawText("RYTHM :ON ",2);
+  }
+  if(vf){
+    drawText("DETUNE:OFF",3);
+  }else{
+    drawText("DETUNE:ON ",3);
+  }
+
+  switch(gmode){
+    case M_PLAY: drawText("PLAY      ",7);break;
+    case M_STEP: drawText("STEP      ",7);break;
+    case M_SYNTH:drawText("SYNTH     ",7);break;
+    case M_MENV: drawText("MELODY ENV",7);break;
+    case M_CENV: drawText("CHORD ENV ",7);break;
+    case M_ALPE: drawText("ALPE      ",7);break;
+  }
+}
+
+
+
 #define SAMPLE 64
 
 void mkWave(byte type){
@@ -263,7 +324,7 @@ void triggerOn(byte n){
           // event on
         }
         if(n < 14){
-          setTone(n);
+          setTone(n, trigger[n]);
         }else if(n < 21){
           setChord(n - 14);
         }else{
@@ -302,7 +363,7 @@ void triggerOn(byte n){
           }
         }
         if(n >= 7 && n < 14){
-          setTone(n);
+          setTone(n, trigger[n]);
         }else if(n < 21){
           setChord(n - 14);
         }else{
@@ -323,7 +384,7 @@ void triggerOn(byte n){
           }
         }
         if(n >= 7 && n < 14){
-          setTone(n);
+          setTone(n, trigger[n]);
         }else if(14 <= n && n < 21){
           setChord(n - 14);
         }
@@ -338,7 +399,7 @@ void triggerOn(byte n){
           }
         }
         if(n >= 7 && n < 14){
-          setTone(n);
+          setTone(n, trigger[n]);
         }else if(n < 21){
           setChord(n - 14);
         }
@@ -366,22 +427,22 @@ void triggerOn(byte n){
   }else{ // gsetting
     if(trigger[n] == 0){
       switch(n){
-        case 0: galpe = false;break;
-        case 1: galpe = true;break;
-        case 2: grythm = false;break;
-        case 3: grythm = true;break;
-        case 4: vf = 0;break;
-        case 5: vf = 1;break;
-        case 14:gmode = M_PLAY;break;
-        case 15:gmode = M_STEP;break;
-        case 16:gmode = M_SYNTH;break;
-        case 17:gmode = M_MENV;break;
-        case 18:gmode = M_CENV;break;
-        case 19:gmode = M_ALPE;break;
+        case 0: galpe = false;  drawText("ALPE  :OFF",1);break;
+        case 1: galpe = true;   drawText("ALPE  :ON ",1);break;
+        case 2: grythm = false; drawText("RYTHM :OFF",2);break;
+        case 3: grythm = true;  drawText("RYTHM :ON ",2);break;
+        case 4: vf = 0;         drawText("DETUNE:OFF",3);break;
+        case 5: vf = 1;         drawText("DETUNE:ON ",3);break;
+        case 14:gmode = M_PLAY; drawText("PLAY      ",7);break;
+        case 15:gmode = M_STEP; drawText("STEP      ",7);break;
+        case 16:gmode = M_SYNTH;drawText("SYNTH     ",7);break;
+        case 17:gmode = M_MENV; drawText("MELODY ENV",7);break;
+        case 18:gmode = M_CENV; drawText("CHORD ENV ",7);break;
+        case 19:gmode = M_ALPE; drawText("ALPE      ",7);break;
       }
     }
   }
-  if(trigger[n] < 256){
+  if(trigger[n] < 255){
     trigger[n] ++;
   }
 }
@@ -391,6 +452,7 @@ void triggerOff(byte n){
     trigger[n] = 0;
     if(n >= 21){
       shiftMode = M_NONE;
+      glideMode = 0;
     }
     if(n == 27){
       gsetting = false;
@@ -415,9 +477,9 @@ void lcdSetup(){
     Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
       Wire.write(0x40); //Set Display Start Line 0x40
     Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xA0); //Set Segment re-map 0xA0/0xA1
+      Wire.write(0xA1); //Set Segment re-map 0xA0/0xA1
     Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xC0); //Set COM Output Scan Direction 0xC0,/0xC8
+      Wire.write(0xC8); //Set COM Output Scan Direction 0xC0,/0xC8
     Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
       Wire.write(0xDA); //Set COM Pins hardware configuration 0xDA, 0x02
         Wire.write(0b00010010);
@@ -702,6 +764,40 @@ byte defaultAdd[] = {
  M_MINOR, // Bm
 };
 
+static unsigned char lookup[16] = {
+0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
+0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf, };
+
+uint8_t reverse(uint8_t n) {
+ return (lookup[n&0b1111] << 4) | lookup[n>>4];
+}
+
+void lcdClear(){
+  Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xB0); //set page start address←垂直開始ページはここで決める(B0～B7)
+    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+      Wire.write(0x21); //set Column Address
+        Wire.write(0); //Column Start Address←水平開始位置はここで決める(0～127)
+        Wire.write(127); //Column Stop Address　画面をフルに使う
+  Wire.endTransmission();
+
+  for(int k = 0; k < 8; k ++){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+      Wire.write(0xB0 + k); //set page start address←垂直開始ページはここで決める(B0～B7)
+    Wire.endTransmission();
+    for(int j = 0; j < 8*2; j ++){
+      Wire.beginTransmission(ADDRESS_OLED);
+      Wire.write(0b01000000);
+      for(int i=0; i<8; i++){
+        Wire.write(0x00);
+      }
+      Wire.endTransmission();
+    }
+  }
+}
+
 void lcdDraw(byte scale,byte add){
   uint8_t* scaleBmp;
   uint8_t* addBmp;
@@ -724,23 +820,41 @@ void lcdDraw(byte scale,byte add){
   }
 
   for(int i = 0; i < 8; i ++){
-    display[i * 4] = scaleBmp[i];
+    display[32 +1+ i * 4] = reverse(scaleBmp[7-i]);
   }
   for(int i = 0; i < 16; i ++){
-    display[32 + i/2*4 + i%2] = addBmp[i];
+    display[i/2*4 + i%2] = reverse(addBmp[15-i]);
   }
-
 
   Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
       Wire.write(0xB0); //set page start address←垂直開始ページはここで決める(B0～B7)
     Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
       Wire.write(0x21); //set Column Address
-        Wire.write(0); //Column Start Address←水平開始位置はここで決める(0～127)
-        Wire.write(127-64); //Column Stop Address　画面をフルに使う
+        Wire.write(64); //Column Start Address←水平開始位置はここで決める(0～127)
+        Wire.write(127); //Column Stop Address　画面をフルに使う
   Wire.endTransmission();
 
+  /*
+  // DUMMY DATA==
+  for(int j = 0; j < 8; j ++){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    for(int i=0; i<8; i++){
+      Wire.write(0xff);
+    }
+    Wire.endTransmission();
+  }
+  // END DUMMY DATA ==
+  */
+
   for(int j = 0; j < 32; j ++){
+     if(j%4 == 0){
+       Wire.beginTransmission(ADDRESS_OLED);
+         Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+           Wire.write(0xB0 + j/4); //set page start address←垂直開始ページはここで決める(B0～B7)
+       Wire.endTransmission();
+     }
      if(j%4 == 2 || j%4 ==3)continue;
       for(int i=0; i<8; i++){
         if(i%2 == 0){
@@ -748,6 +862,7 @@ void lcdDraw(byte scale,byte add){
           Wire.write(0b01000000);
         }
         for(int k=0; k<4; k++){
+          //Wire.write(0xf0);
           Wire.write(((display[j/4*8 + j%4] & (1<<(7-i%8)))?0x0f:0x00) | ((display[j/4*8 + j%4 + 4] & (1<<(7-i%8)))?0xf0:0x00));
         }
         if(i%2 == 1){
@@ -759,16 +874,16 @@ void lcdDraw(byte scale,byte add){
 
 inline uint8_t doubleHead(uint8_t x){
   return
-    /*
     ((0b00010000 & x)>>4) |
     ((0b00010000 & x)>>3) |
     ((0b00100000 & x)>>3) |
     ((0b00100000 & x)>>2) |
     ((0b01000000 & x)>>2) |
     ((0b01000000 & x)>>1) |
-    ((0b10000000 & x)>>1);
-    */
+    ((0b10000000 & x)>>1) |
+    ((0b10000000 & x));
 
+    /*
     ((0b10000000 & x)>>7) |
     ((0b10000000 & x)>>6) |
     ((0b01000000 & x)>>4) |
@@ -777,19 +892,20 @@ inline uint8_t doubleHead(uint8_t x){
     ((0b00100000 & x)>>1) |
     ((0b00010000 & x)<<2) |
     ((0b00010000 & x)<<3);
+    */
 
 }
 inline uint8_t doubleTail(uint8_t x){
   return
-  /*
     ((0b00001000 & x)<<4) |
     ((0b00001000 & x)<<3) |
     ((0b00000100 & x)<<3) |
     ((0b00000100 & x)<<2) |
     ((0b00000010 & x)<<2) |
     ((0b00000010 & x)<<1) |
-    ((0b00000001 & x)<<1);
-    */
+    ((0b00000001 & x)<<1) |
+    ((0b00000001 & x));
+    /*
     ((0b00001000 & x)>>3) |
     ((0b00001000 & x)>>2) |
     ((0b00000100 & x)<<1) |
@@ -798,8 +914,7 @@ inline uint8_t doubleTail(uint8_t x){
     ((0b00000010 & x)<<4) |
     ((0b00000001 & x)<<6) |
     ((0b00000001 & x)<<7);
-
-
+    */
 }
 
 void logoDraw(){
@@ -808,93 +923,94 @@ void logoDraw(){
       Wire.write(0xB0); //set page start address←垂直開始ページはここで決める(B0～B7)
     Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
       Wire.write(0x21); //set Column Address
-        Wire.write(64); //Column Start Address←水平開始位置はここで決める(0～127)
-        Wire.write(127); //Column Stop Address　画面をフルに使う
+        Wire.write(0); //Column Start Address←水平開始位置はここで決める(0～127)
+        Wire.write(63); //Column Stop Address　画面をフルに使う
   Wire.endTransmission();
 
-  for(int j = 15; j >= 0; j --){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.endTransmission();
-  }
-  for(int j = 15; j >= 0; j --){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.endTransmission();
-  }
-  for(int j = 15; j >= 0; j --){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.endTransmission();
-  }
-  for(int j = 15; j >= 0; j --){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.endTransmission();
-  }
-  for(int j = 15; j >= 0; j --){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.endTransmission();
-  }
-  for(int j = 15; j >= 0; j --){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.endTransmission();
-  }
-  for(int j = 15; j >= 0; j --){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.endTransmission();
-  }
-  for(int j = 15; j >= 0; j --){
+  for(int j = 0; j < 16; j ++){
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
     Wire.write(doubleTail(logo[j*4 + 3]));
     Wire.write(doubleTail(logo[j*4 + 3]));
     Wire.write(doubleTail(logo[j*4 + 3]));
     Wire.write(doubleTail(logo[j*4 + 3]));
+    Wire.endTransmission();
+  }
+  for(int j = 0; j < 16; j ++){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleHead(logo[j*4 + 3]));
+    Wire.write(doubleHead(logo[j*4 + 3]));
+    Wire.write(doubleHead(logo[j*4 + 3]));
+    Wire.write(doubleHead(logo[j*4 + 3]));
     Wire.endTransmission();
   }
 
+  for(int j = 0; j < 16; j ++){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.endTransmission();
+  }
+  for(int j = 0; j < 16; j ++){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.endTransmission();
+  }
 
+  for(int j = 0; j < 16; j ++){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.endTransmission();
+  }
+  for(int j = 0; j < 16; j ++){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.endTransmission();
+  }
+  for(int j = 0; j < 16; j ++){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.endTransmission();
+  }
 
+  for(int j = 0; j < 16; j ++){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleHead(logo[j*4 + 0]));
+    Wire.write(doubleHead(logo[j*4 + 0]));
+    Wire.write(doubleHead(logo[j*4 + 0]));
+    Wire.write(doubleHead(logo[j*4 + 0]));
+    Wire.endTransmission();
+  }
 
 }
-
 
 void setup(){
   soundSetup();
   lcdSetup();
-  logoDraw();
+  lcdClear();
+  //logoDraw();
+  drawDisplay();
   
   mkWave(0);
   
@@ -1087,6 +1203,9 @@ void loop(){
   boolean b5 = digitalRead(11);
   boolean b6 = digitalRead(10);
   boolean b7 = digitalRead(8);
+
+  boolean pushed = false;
+
   switch(bscan){
     case 0:
       if(!b1){triggerOn(21);}else{triggerOff(21);}
@@ -1116,13 +1235,13 @@ void loop(){
       if(!b7){triggerOn(13);}else{triggerOff(13);}
     break;
     case 2:
-      if(!b1){triggerOn(14);}else{triggerOff(14);}
-      if(!b2){triggerOn(15);}else{triggerOff(15);}
-      if(!b3){triggerOn(16);}else{triggerOff(16);}
-      if(!b4){triggerOn(17);}else{triggerOff(17);}
-      if(!b5){triggerOn(18);}else{triggerOff(18);}
-      if(!b6){triggerOn(19);}else{triggerOff(19);}
-      if(!b7){triggerOn(20);}else{triggerOff(20);}
+      if(!b1){triggerOn(14);pushed = true;}else{triggerOff(14);}
+      if(!b2 && pushed == false){triggerOn(15);pushed = true;}else{triggerOff(15);}
+      if(!b3 && pushed == false){triggerOn(16);pushed = true;}else{triggerOff(16);}
+      if(!b4 && pushed == false){triggerOn(17);pushed = true;}else{triggerOff(17);}
+      if(!b5 && pushed == false){triggerOn(18);pushed = true;}else{triggerOff(18);}
+      if(!b6 && pushed == false){triggerOn(19);pushed = true;}else{triggerOff(19);}
+      if(!b7 && pushed == false){triggerOn(20);pushed = true;}else{triggerOff(20);}
     break;
   }
 
