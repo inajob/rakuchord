@@ -1,12 +1,23 @@
 include <polyScrewThread_r1.scad>;
 
+//linear_extrude(height = 5, center = true, convexity = 10)
+$fn=50;
 
-module screw_hole(r=2.5){
-    translate([92/2 - 5, 92/2-2 + 1,0]) circle(r);
-    translate([92/2 - 5, -92/2 + 3,0]) circle(r);
+module screw_hole(){
+    translate([92/2 - 5, 92/2-2 + 1,0]) screw_hole_model();
+    translate([92/2 - 5, -92/2 + 3,0]) screw_hole_model();
 
-    translate([-92/2 + 5, 92/2-2 + 1,0]) circle(r);
-    translate([-92/2 + 5, -92/2 + 3,0]) circle(r);
+    translate([-92/2 + 5, 92/2-2 + 1,0]) screw_hole_model();
+    translate([-92/2 + 5, -92/2 + 3,0]) screw_hole_model();
+}
+module screw_hole_model(){
+    union(){
+        cylinder(h = 5, r1 = 3.5, r2 = 3.5, center = false, $fn=6);    
+        translate([0,0,5])
+          cylinder(h = 3, r1 = 3.5, r2 = 2.5, center = false);
+        translate([0,0,0])
+          cylinder(h = 200, r1 = 2.5, r2 = 2.5);
+    }
 }
 
 module base_board(){
@@ -30,37 +41,23 @@ module hemi_sphere(r){
     }
 }
 
-module upper_case_outer(height = 10){
-    margin = 5;
-    hull(){
-        translate([0,0, -height/2]){
-            linear_extrude(height = 1){
-                minkowski()
-                {
-                  // base board
-                  union(){
-                    base_board();
-                    translate([0,-5,0])base_board();
-                  }
-                  // margin
-                  circle(margin);
-                }
-            }
-        }
-        translate([92/2, 100/2,0]) hemi_sphere(margin);
-        translate([92/2, -100/2-5,0]) hemi_sphere(margin);
-        translate([-92/2, 100/2,0]) hemi_sphere(margin);
-        translate([-92/2, -100/2-5,0]) hemi_sphere(margin);
+module upper_case_outer(){
+    translate([0,0, 6]) rotate([0,180,0]) linear_extrude(6){
+        translate([0,3,0])
+          offset(2) offset(-2){
+            square([93,100+4], center=true);
+          }
     }
-    translate([0,0, 5]) rotate([0,180,0]) linear_extrude(height = height/2 + margin) hull(){
-      translate([93/2 ,100/2 + 2,0]) circle(8);
-      translate([-93/2 ,100/2 + 2,0]) circle(8);
-    }
-
 }
 
 module upper_hole(){
-  square([73, 90], center = true);
+  //square([73, 90], center = true);
+  translate([-136,77,0])
+    import(file = "dxf/rakuchord-draft-Eco1.User.dxf");
+}
+module upper_hole2(){
+  translate([-136,77,0])
+    import(file = "dxf/rakuchord-draft-Dwgs.User.dxf");
 }
 
 module key1_space(){
@@ -73,9 +70,9 @@ module cable_hole(){
 }
 
 module jack_diff(){
-    translate([14,-40,3]) rotate([90,0,0]) linear_extrude(height=20){
-       translate([0,5,0])square([10,10], center = true);
-       circle(5);
+    translate([14,-40+3,3]) rotate([90,0,0]) linear_extrude(height=20){
+       translate([0,5,0])square([14,14], center = true);
+       circle(7);
     }
 }
 
@@ -94,23 +91,60 @@ module jack_diff(){
     }
 }
 
-
-*difference(){
-    upper_case_outer();
-    translate([0,0,-10])linear_extrude(height=20){
-      screw_hole();
-      upper_hole();
-      cable_hole();
+linear_extrude(height=3) difference(){
+    translate([0,0, 0]) rotate([0,180,0]){
+        translate([0,3,0])
+          offset(2) offset(-2){
+            square([93,100+4], center=true);
+          }
     }
-    translate([0,0,-7]) linear_extrude(height=10){
+    translate([92/2 - 5, 92/2-2 + 1,0]) circle(2);
+    translate([92/2 - 5, -92/2 + 3,0]) circle(2);
+    translate([-92/2 + 5, 92/2-2 + 1,0]) circle(2);
+    translate([-92/2 + 5, -92/2 + 3,0]) circle(2);
+    upper_hole();
+}
+
+translate([0,0,3]) linear_extrude(height=3) difference(){
+    translate([0,0, 0]) rotate([0,180,0]){
+        translate([0,3,0])
+          offset(2) offset(-2){
+            square([93,100+4], center=true);
+          }
+    }
+
+    translate([92/2 - 5, 92/2-2 + 1,0]) circle(2);
+    translate([92/2 - 5, -92/2 + 3,0]) circle(2);
+    translate([-92/2 + 5, 92/2-2 + 1,0]) circle(2);
+    translate([-92/2 + 5, -92/2 + 3,0]) circle(2);
+
+    upper_hole2();
+}
+
+*translate([0,0,40]) difference(){
+    upper_case_outer();
+    translate([0,0,0])linear_extrude(height=3){
+      upper_hole();
+      *cable_hole();
+    }
+    translate([0,0,-10])linear_extrude(height=50){
+      upper_hole2();
+    }
+    translate([0,0,-30])
+      screw_hole();
+    translate([0,0,0]) linear_extrude(height=3){
         //base_board_space();
-        minkowski(){
-            lower_case_outer();
-            circle(1);
+        *difference(){
+            offset(1){
+                lower_case_outer();
+            }
+            offset(0){
+                lower_case_inner();
+            }
         }
     }
     translate([0,0,2])linear_extrude(height=5){
-      key1_space();
+      *key1_space();
     }
     jack_diff();
 }
@@ -124,11 +158,14 @@ module lower_case_outer(){
       translate([93/2 ,100/2 + 2,0]) circle(5, $fn=50);
       translate([-93/2 ,100/2 + 2,0]) circle(5, $fn=50);
     }
-    square([95, 100+10], center = true);
+    square([92+1+6, 100+10], center = true);
     hull(){
         translate([93/2 -1 ,-100/2,0]) circle(2, $fn=50);
         translate([-93/2 +1 ,-100/2,0]) circle(2, $fn=50);
     }
+}
+module lower_case_outer_edge(){
+  square([92+1, 105], center = true);
 }
 
 module lower_case_inner(){
@@ -145,20 +182,34 @@ module lower_case_inner(){
 module speaker_hold(){
     linear_extrude(height = 20){
         translate([-94/2 + 12,-50 + 5 + 10/2-5,0]) scale(5) {
-            translate([-2,-1,0]) square([1, 2]);
-            mirror([0,1,0]) polygon([[-1,-1],[1,-1],[1,0],[0,1],[-1,1]]);
+            translate([-2,-1,0]) square([1, 3.5]);
+            mirror([0,1,0]) polygon([[-1,-2.5],[1,-2.5],[1,0],[0,1],[-1,1]]);
             translate([-2,-2,0]) square([1.5,1]);
         }
+        
+    }
+    linear_extrude(height = 15){
+        translate([-94/2 + 12,45.5,0]) scale(5) {
+            translate([-2,-1,0]){
+                square([1, 2]);
+                
+            }
+            translate([-1,0,0]){
+                circle(1, $fn=50);
+            }
+        }
+        translate([0,40,0])
+          square([49,5]);
     }
 }
 
 
 thread = "none"; //modeled
 
-translate([0,0,-34]){
+*translate([0,0,-34]){
     difference(){
         union(){
-            linear_extrude(height = 33){
+            linear_extrude(height = 36){
                 difference(){
                   lower_case_outer();
                   lower_case_inner();
@@ -193,21 +244,32 @@ translate([0,0,-34]){
             }
             speaker_hold();
             mirror([-1,0,0]) speaker_hold();
-            linear_extrude(height = 25){
-                translate([44,-51-5,0]){
-                    circle(3.5, $fn=20);
-                }
+            linear_extrude(height=20)translate([0,-32,0])square([96,3],center=true);
+            translate([46+2,-51-5,0]){
+                cylinder(h = 11, r1 = 4, r2 = 4, $fn = 40);
+                translate([0,0,11])cylinder(h = 5, r1 = 4, r2 = 2, $fn = 40);
+                
+                translate([0,0,16])cylinder(h = 4, r1 = 2, r2 = 2, $fn = 40);
+                
+                translate([0,0,20])cylinder(h = 5, r1 = 2, r2 = 4, $fn = 40);
+                translate([0,0,20 + 5])cylinder(h = 11, r1 = 4, r2 = 4, $fn = 40);
             }
-            linear_extrude(height = 25){
-                translate([49,57,0]){
-                    circle(3.5, $fn=20);
-                }
+            translate([49,57,0]){
+                cylinder(h = 11, r1 = 4, r2 = 4, $fn = 40);
+                translate([0,0,11])cylinder(h = 5, r1 = 4, r2 = 2, $fn = 40);
+                
+                translate([0,0,16])cylinder(h = 4, r1 = 2, r2 = 2, $fn = 40);
+                
+                translate([0,0,20])cylinder(h = 5, r1 = 2, r2 = 4, $fn = 40);
+                translate([0,0,20 + 5])cylinder(h = 11, r1 = 4, r2 = 4, $fn = 40);
             }
         }
-
-        linear_extrude(height = 34){
-            screw_hole();
+        translate([0,0,33]){
+            linear_extrude(height = 5){
+                lower_case_outer_edge();
+            }
         }
+        screw_hole();
     }
 }
 
