@@ -238,26 +238,24 @@ void clearAStep(){
 
 void drawText(char* buf, byte y){
   Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xB0 + y); //set page start address←垂直開始ページはここで決める(B0～B7)
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0x21); //set Column Address
-        Wire.write(0); //Column Start Address←水平開始位置はここで決める(0～127)
-        Wire.write(127); //Column Stop Address　画面をフルに使う
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0xB0 + y); //set page start address(B0～B7)
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0x21); //set Column Address
+  Wire.write(0); //Column Start Address(0～127)
+  Wire.write(127); //Column Stop Address
   Wire.endTransmission();
 
-  //for(int j = 0; j < 32; j ++){ // 128/4 = 32
-    while(*buf != 0){
-      Wire.beginTransmission(ADDRESS_OLED);
-      Wire.write(0b01000000);
-      for(int i = 0; i < 4; i ++){
-        Wire.write(pgm_read_byte_near(&(font[*buf-' '][i])));
-      }
-      Wire.write(0x00);
-      Wire.endTransmission();
-      buf++;
+  while(*buf != 0){
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    for(int i = 0; i < 4; i ++){
+      Wire.write(pgm_read_byte_near(&(font[*buf-' '][i])));
     }
-  //}
+    Wire.write(0x00);
+    Wire.endTransmission();
+    buf++;
+  }
 }
 
 void drawDisplay(){
@@ -570,52 +568,52 @@ void lcdSetup(){
   Wire.setClock(400000L);
   delay(100);
     
-  Wire.beginTransmission(ADDRESS_OLED);//※このバイトも含め、以後、合計32byteまで送信できる
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xAE); //display off
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0xA8); //Set Multiplex Ratio  0xA8, 0x3F
-        Wire.write(0b00111111); //64MUX
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)    
-      Wire.write(0xD3); //Set Display Offset 0xD3, 0x00
-        Wire.write(0x00);
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0x40); //Set Display Start Line 0x40
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xA1); //Set Segment re-map 0xA0/0xA1
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xC8); //Set COM Output Scan Direction 0xC0,/0xC8
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0xDA); //Set COM Pins hardware configuration 0xDA, 0x02
-        Wire.write(0b00010010);
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0x81); //Set Contrast Control 0x81, default=0x7F
-        Wire.write(255); //0-255
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xA4); //Disable Entire Display On
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0xA6); //Set Normal Display 0xA6, Inverse display 0xA7
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0xD5); //Set Display Clock Divide Ratio/Oscillator Frequency 0xD5, 0x80
-        Wire.write(0b10000000);
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0x20); //Set Memory Addressing Mode
-        Wire.write(0x10); //Page addressing mode
+  Wire.beginTransmission(ADDRESS_OLED);
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0xAE); //display off
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0xA8); //Set Multiplex Ratio  0xA8, 0x3F
+  Wire.write(0b00111111); //64MUX
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0xD3); //Set Display Offset 0xD3, 0x00
+  Wire.write(0x00);
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0x40); //Set Display Start Line 0x40
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0xA1); //Set Segment re-map 0xA0/0xA1
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0xC8); //Set COM Output Scan Direction 0xC0,/0xC8
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0xDA); //Set COM Pins hardware configuration 0xDA, 0x02
+  Wire.write(0b00010010);
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0x81); //Set Contrast Control 0x81, default=0x7F
+  Wire.write(255); //0-255
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0xA4); //Disable Entire Display On
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0xA6); //Set Normal Display 0xA6, Inverse display 0xA7
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0xD5); //Set Display Clock Divide Ratio/Oscillator Frequency 0xD5, 0x80
+  Wire.write(0b10000000);
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0x20); //Set Memory Addressing Mode
+  Wire.write(0x10); //Page addressing mode
   Wire.endTransmission();
   Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0x22); //Set Page Address
-        Wire.write(0); //Start page set
-        Wire.write(7); //End page set
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0x21); //set Column Address
-        Wire.write(0); //Column Start Address
-        Wire.write(127); //Column Stop Address
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0x8D); //Set Enable charge pump regulator 0x8D, 0x14
-        Wire.write(0x14);
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xAF); //Display On 0xAF
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0x22); //Set Page Address
+  Wire.write(0); //Start page set
+  Wire.write(7); //End page set
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0x21); //set Column Address
+  Wire.write(0); //Column Start Address
+  Wire.write(127); //Column Stop Address
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0x8D); //Set Enable charge pump regulator 0x8D, 0x14
+  Wire.write(0x14);
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0xAF); //Display On 0xAF
   Wire.endTransmission();
 
   delay(10);
@@ -879,18 +877,18 @@ uint8_t reverse(uint8_t n) {
 
 void lcdClear(){
   Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xB0); //set page start address←垂直開始ページはここで決める(B0～B7)
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0x21); //set Column Address
-        Wire.write(0); //Column Start Address←水平開始位置はここで決める(0～127)
-        Wire.write(127); //Column Stop Address　画面をフルに使う
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0xB0); //set page start address
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0x21); //set Column Address
+  Wire.write(0); //Column Start Address
+  Wire.write(127); //Column Stop Address
   Wire.endTransmission();
 
   for(int k = 0; k < 8; k ++){
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xB0 + k); //set page start address←垂直開始ページはここで決める(B0～B7)
+    Wire.write(0xB0 + k); //set page start address(B0～B7)
     Wire.endTransmission();
     for(int j = 0; j < 8*2; j ++){
       Wire.beginTransmission(ADDRESS_OLED);
@@ -932,32 +930,19 @@ void lcdDraw(byte scale,byte add){
   }
 
   Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xB0); //set page start address←垂直開始ページはここで決める(B0～B7)
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0x21); //set Column Address
-        Wire.write(64); //Column Start Address←水平開始位置はここで決める(0～127)
-        Wire.write(127); //Column Stop Address　画面をフルに使う
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0xB0); //set page start address(B0～B7)
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0x21); //set Column Address
+  Wire.write(64); //Column Start Address(0～127)
+        Wire.write(127); //Column Stop Address
   Wire.endTransmission();
-
-  /*
-  // DUMMY DATA==
-  for(int j = 0; j < 8; j ++){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    for(int i=0; i<8; i++){
-      Wire.write(0xff);
-    }
-    Wire.endTransmission();
-  }
-  // END DUMMY DATA ==
-  */
 
   for(int j = 0; j < 32; j ++){
      if(j%4 == 0){
        Wire.beginTransmission(ADDRESS_OLED);
-         Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-           Wire.write(0xB0 + j/4); //set page start address←垂直開始ページはここで決める(B0～B7)
+       Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+       Wire.write(0xB0 + j/4); //set page start address(B0～B7)
        Wire.endTransmission();
      }
      if(j%4 == 2 || j%4 ==3)continue;
@@ -967,7 +952,6 @@ void lcdDraw(byte scale,byte add){
           Wire.write(0b01000000);
         }
         for(int k=0; k<4; k++){
-          //Wire.write(0xf0);
           Wire.write(((display[j/4*8 + j%4] & (1<<(7-i%8)))?0x0f:0x00) | ((display[j/4*8 + j%4 + 4] & (1<<(7-i%8)))?0xf0:0x00));
         }
         if(i%2 == 1){
@@ -1024,12 +1008,12 @@ inline uint8_t doubleTail(uint8_t x){
 
 void logoDraw(){
   Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
-      Wire.write(0xB0); //set page start address←垂直開始ページはここで決める(B0～B7)
-    Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
-      Wire.write(0x21); //set Column Address
-        Wire.write(0); //Column Start Address←水平開始位置はここで決める(0～127)
-        Wire.write(63); //Column Stop Address　画面をフルに使う
+  Wire.write(0b10000000); //control byte, Co bit = 1, D/C# = 0 (command)
+  Wire.write(0xB0); //set page start address(B0～B7)
+  Wire.write(0b00000000); //control byte, Co bit = 0, D/C# = 0 (command)
+  Wire.write(0x21); //set Column Address
+  Wire.write(0); //Column Start Address(0～127)
+  Wire.write(63); //Column Stop Address
   Wire.endTransmission();
 
   for(int j = 0; j < 16; j ++){
