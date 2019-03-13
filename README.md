@@ -4,7 +4,7 @@
 
 紹介ページ: https://inajob.github.io/rakuchord/
 
-![RakuChord](docs/imgs/rakuchord-p.jpg)
+![RakuChord](docs/imgs/rakuchord-p-next.jpg)
 
 # ディレクトリ構成
 
@@ -15,5 +15,5 @@
 - model
   - 筐体データ
 - circuit
-  - 回路図
+  - 回路図(まだMTF2018のデータです)
 
