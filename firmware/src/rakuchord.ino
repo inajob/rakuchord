@@ -778,7 +778,7 @@ static const uint8_t dataMajor[16] PROGMEM = {
   0b00000000, 0b00000000,
 };
 
-uint8_t logo[64]={
+static const uint8_t logo[64] PROGMEM = {
 /*
   0b00000111, 0b10000000,0b00000000, 0b00000000,
   0b00001111, 0b11000000,0b00000000, 0b00000000,
@@ -1018,81 +1018,88 @@ void logoDraw(){
   Wire.endTransmission();
 
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 3]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 3]));
-    Wire.write(doubleTail(logo[j*4 + 3]));
-    Wire.write(doubleTail(logo[j*4 + 3]));
-    Wire.write(doubleTail(logo[j*4 + 3]));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
     Wire.endTransmission();
   }
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 3]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.write(doubleHead(logo[j*4 + 3]));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
     Wire.endTransmission();
   }
 
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 2]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
     Wire.endTransmission();
   }
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 2]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
     Wire.endTransmission();
   }
 
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 1]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
     Wire.endTransmission();
   }
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 1]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.endTransmission();
+  }
+  
+  for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 0]);
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
     Wire.endTransmission();
   }
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 0]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
     Wire.endTransmission();
   }
-
-  for(int j = 0; j < 16; j ++){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.endTransmission();
-  }
-
 }
 
 void getDecayParams(uint8_t mode, uint8_t *fast_decay, uint8_t *fast_decay_rate) {
