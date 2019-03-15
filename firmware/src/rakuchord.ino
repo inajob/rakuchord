@@ -96,7 +96,8 @@ int shift(int n, int s){
 
 void setChord(byte no){
   char buf[32];
-  static byte pre = 0;
+  // Initializing to 0 would make the firmware believe C was playing.
+  static byte pre = 0xff;
   static byte preAdd = M_NONE;
   if(pre != no || preAdd != shiftMode){
     pre = no;
