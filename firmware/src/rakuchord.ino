@@ -8,9 +8,9 @@
 
 #include <SPI.h>
 #include <Wire.h>
-#include <tones.h>
-#include <MultiTunes.h>
-#include <font.h>
+#include "tones.h"
+#include "MultiTunes.h"
+#include "font.h"
 
 #define ADDRESS_OLED 0x3C
 
