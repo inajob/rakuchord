@@ -656,7 +656,7 @@ uint8_t display[64]={
   0b11110000, 0b00111100,0b11101110, 0b11100010,
   */
 };
-uint8_t dataA[8]={
+static const uint8_t dataA[8] PROGMEM = {
   0b11111100,
   0b11111110,
   0b00110011,
@@ -666,7 +666,7 @@ uint8_t dataA[8]={
   0b11111100,
   0b00000000,
 };
-uint8_t dataB[8]={
+static const uint8_t dataB[8] PROGMEM = {
   0b11111111,
   0b11111111,
   0b11011011,
@@ -676,7 +676,7 @@ uint8_t dataB[8]={
   0b01101110,
   0b00000000,
 };
-uint8_t dataC[8]={
+static const uint8_t dataC[8] PROGMEM = {
   0b00111100,
   0b01111110,
   0b11100111,
@@ -686,7 +686,7 @@ uint8_t dataC[8]={
   0b01100110,
   0b00000000
 };
-uint8_t dataD[8] = {
+static const uint8_t dataD[8] PROGMEM = {
   0b11111111,
   0b11111111,
   0b11000011,
@@ -696,7 +696,7 @@ uint8_t dataD[8] = {
   0b00111100,
   0b00000000
 };
-uint8_t dataE[8]={
+static const uint8_t dataE[8] PROGMEM = {
   0b11111111,
   0b11111111,
   0b11011011,
@@ -706,7 +706,7 @@ uint8_t dataE[8]={
   0b00000000,
   0b00000000,
 };
-uint8_t dataF[8]={
+static const uint8_t dataF[8] PROGMEM = {
   0b11111111,
   0b11111111,
   0b00011011,
@@ -716,7 +716,7 @@ uint8_t dataF[8]={
   0b00000000,
   0b00000000,
 };
-uint8_t dataG[8]={
+static const uint8_t dataG[8] PROGMEM = {
   0b00111100,
   0b01111110,
   0b11100111,
@@ -727,7 +727,7 @@ uint8_t dataG[8]={
   0b00000000
 };
 
-uint8_t dataSus4[16]={
+static const uint8_t dataSus4[16] PROGMEM = {
   0b10111011, 0b10101110,
   0b10101010, 0b00101010,
   0b11101011, 0b10111010,
@@ -747,7 +747,7 @@ uint8_t dataSus4[16]={
   0b11101110, 0b11100010,
   */
 };
-uint8_t dataMinor[16]={
+static const uint8_t dataMinor[16] PROGMEM = {
   0b11100000, 0b00000000,
   0b11110000, 0b00000000,
   0b00010000, 0b00000000,
@@ -767,7 +767,7 @@ uint8_t dataMinor[16]={
   0b11011011, 0b00000000,
   */
 };
-uint8_t dataMajor[16]={
+static const uint8_t dataMajor[16] PROGMEM = {
   0b00000000, 0b00000000,
   0b00000000, 0b00000000,
   0b00000000, 0b00000000,
@@ -858,7 +858,7 @@ uint8_t logo[64]={
 };
 
 
-byte defaultAdd[] = {
+static const byte defaultAdd[] PROGMEM = {
  M_MAJOR, // C
  M_MINOR, // Dm
  M_MINOR, // Em
@@ -915,7 +915,7 @@ void lcdDraw(byte scale,byte add){
     case 6:  scaleBmp = dataB;break;
   }
   if(add == M_NONE){
-    add = defaultAdd[scale];
+    add = pgm_read_byte_near(&defaultAdd[scale]);
   }
   switch(add){
     case M_MINOR: addBmp = dataMinor;break;
@@ -924,10 +924,10 @@ void lcdDraw(byte scale,byte add){
   }
 
   for(int i = 0; i < 8; i ++){
-    display[32 +1+ i * 4] = reverse(scaleBmp[7-i]);
+    display[32 +1+ i * 4] = reverse(pgm_read_byte_near(&scaleBmp[7-i]));
   }
   for(int i = 0; i < 16; i ++){
-    display[i/2*4 + i%2] = reverse(addBmp[15-i]);
+    display[i/2*4 + i%2] = reverse(pgm_read_byte_near(&addBmp[15-i]));
   }
 
   Wire.beginTransmission(ADDRESS_OLED);
