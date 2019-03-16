@@ -11,7 +11,7 @@ int noise2;
 
 volatile byte vf;
 
-byte wave[16][64];
+byte wave[8][64];
 
 
 const unsigned int timerLoadValue = 220;
@@ -46,25 +46,28 @@ ISR(TIMER1_OVF_vect) {    // Timer/Counter1 Overflow
   dn[2] = dn[2] + d[2];
   dn[3] = dn[3] + d[3];
   dn[4] = dn[4] + d[4];
-  /*
-  level = ((dn[0]&(1<<14))?vol[0]:0) +
-          ((dn[1]&(1<<14))?vol[1]:0) +
-          ((dn[2]&(1<<14))?vol[2]:0) +
-          ((dn[3]&(1<<14))?vol[3]:0) +
-          ((dn[4]&(1<<14))?vol[4]:0) + (noise & nf);
-  */
 
   if((realcount & 0x3f) == 0x3f)noise = (noise>>1) + ((bitRead(noise, 13) xor bitRead(noise, 3) xor 1) << 15);
   noise2 = 2100005341  * noise2 + 1651869;
   realcount ++;
   // wave table (slow)
   //lfo+=lfop;
+
+  unsigned char s[5];
+  unsigned char v, sample;
+#define GET_WAVE_SAMPLE(i)                           \
+    (v = vol[i],                                     \
+     sample = wave[v / 2][dn[i] >> 10],              \
+     s[i] = (v & 1) ? sample >> 4 : sample & 0xf)    \
+
+  s[0] = GET_WAVE_SAMPLE(0);
+  s[1] = GET_WAVE_SAMPLE(1);
+  s[2] = GET_WAVE_SAMPLE(2);
+  s[3] = GET_WAVE_SAMPLE(3);
+  s[4] = GET_WAVE_SAMPLE(4);
+
   const unsigned int level =
-          wave[vol[0]][dn[0]>>10] +
-          wave[vol[1]][dn[1]>>10] +
-          wave[vol[2]][dn[2]>>10] +
-          wave[vol[3]][dn[3]>>10] +
-          wave[vol[4]][dn[4]>>10] +
+          s[0] + s[1] + s[2] + s[3] + s[4] +
           ((noise) & nf) + ((noise2>>8) &nf2);
   OCR1A = level;
 }

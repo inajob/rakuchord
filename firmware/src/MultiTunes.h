@@ -10,7 +10,7 @@ extern int noise2;
 
 extern volatile byte vf;
 
-extern byte wave[16][64];
+extern byte wave[8][64];
 
 
 void soundSetup();

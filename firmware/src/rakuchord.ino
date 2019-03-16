@@ -6,6 +6,7 @@
 // rakuchord first - 0
 // rakuchord rev2
 
+#include <math.h>
 #include <SPI.h>
 #include <Wire.h>
 #include "tones.h"
@@ -391,19 +392,25 @@ void drawAlpe(){
 
 void mkWave(byte type){
   waveType = type;
-  for(byte i=0;i < 16; i++){
-    for(byte j=0;j < SAMPLE; j++){
-      switch(type){
+  for (byte i = 0; i < 16; i++) {
+    byte sample;
+
+    for (byte j = 0; j < SAMPLE; j++) {
+      switch (type) {
         case 0:
-          wave[i][j] = i*j/(SAMPLE); // i : vol, j : t
+          sample = i*j/(SAMPLE); // i : vol, j : t
           break;
         case 1:
-          wave[i][j] = 2 * i * ((j & (SAMPLE>>1))?8:0)/(16+8);  // 8 : 0B100
+          sample = 2 * i * ((j & (SAMPLE>>1))?8:0)/(16+8);  // 8 : 0B100
           break;
         case 2:
-          wave[i][j] = i*((sin(j*2*3.14/SAMPLE)+1)/2 * 8)/16;
+          sample = i*((sin(j*2*3.14/SAMPLE)+1)/2 * 8)/16;
           break;
       }
+      if (!(i & 1))
+        wave[i/2][j] = sample & 0xf;
+      else
+        wave[i/2][j] |= sample << 4;
     }
   }
 }
