@@ -2,7 +2,6 @@
 #define MultiTunes_h
 
 extern volatile unsigned int d[5]; // default value( for debug)
-extern volatile unsigned int dn[5];// work variable
 extern volatile unsigned char vol[5]; // volume par channel
 extern volatile byte nf;
 extern volatile byte nf2;

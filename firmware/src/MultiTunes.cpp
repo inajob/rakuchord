@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include "MultiTunes.h"
 
-volatile unsigned int d[5]; // default value( for debug)
-volatile unsigned int dn[5];// work variable
-volatile unsigned char vol[5]; // volume par channel
+volatile unsigned int d[5] = { 0 }; // default value( for debug)
+static unsigned int dn[5] = { 0 };// work variable
+volatile unsigned char vol[5] = { 0 }; // volume par channel
 volatile byte nf;
 volatile byte nf2;
 int noise;
@@ -15,7 +15,6 @@ byte wave[16][64];
 
 
 const unsigned int timerLoadValue = 220;
-volatile unsigned int level = 0;
 //volatile unsigned int lfo = 0;
 
 volatile byte nv = 5;
@@ -34,10 +33,6 @@ void soundSetup(){
   TIMSK1 = 1<<TOIE1; // Timer/Counter2 Overflow Interrupt Enable
   OCR1A = 80; // for debug
   TCNT1 = timerLoadValue;
-
-  vol[0] = vol[1] = vol[2] = vol[3] = vol[4] = 0;
-  d[0] = d[1] = d[2] = d[3] = d[4] = 0;
-  dn[0] = dn[1] = dn[2] = dn[3] = dn[4] = 0;
 }
 
 // sample 16 -> 12
@@ -61,15 +56,16 @@ ISR(TIMER1_OVF_vect) {    // Timer/Counter1 Overflow
 
   if((realcount & 0x3f) == 0x3f)noise = (noise>>1) + ((bitRead(noise, 13) xor bitRead(noise, 3) xor 1) << 15);
   noise2 = 2100005341  * noise2 + 1651869;
- realcount ++;
+  realcount ++;
   // wave table (slow)
   //lfo+=lfop;
-  level = wave[vol[0]][dn[0]>>10] +
+  const unsigned int level =
+          wave[vol[0]][dn[0]>>10] +
           wave[vol[1]][dn[1]>>10] +
           wave[vol[2]][dn[2]>>10] +
           wave[vol[3]][dn[3]>>10] +
-          wave[vol[4]][dn[4]>>10] + ((noise) & nf) + ((noise2>>8) &nf2);
-          ;
+          wave[vol[4]][dn[4]>>10] +
+          ((noise) & nf) + ((noise2>>8) &nf2);
   OCR1A = level;
 }
 
