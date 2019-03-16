@@ -1095,6 +1095,28 @@ void logoDraw(){
 
 }
 
+void getDecayParams(uint8_t mode, uint8_t *fast_decay, uint8_t *fast_decay_rate) {
+  switch (mode) {
+    case 0:  // fast - normal
+      *fast_decay = 4;
+      *fast_decay_rate = 2;
+      break;
+    case 2: // fast
+      *fast_decay = 2;
+      *fast_decay_rate = 2;
+      break;
+    case 3: // f-fast
+      *fast_decay = 4;
+      *fast_decay_rate = 4;
+      break;
+    case 1:  // normal
+    default:
+      *fast_decay = 0;
+      *fast_decay_rate = 1;
+      break;
+  }
+}
+
 void setup(){
   lcdSetup();
   lcdClear();
@@ -1189,59 +1211,22 @@ void loop(){
   }
 
   if(count == 0){
-    //melody decay
-    switch(mEnvMode){
-      case 0:  // fast - normal
-        if(vol[0] > 4){vol[0] -= 2;}else if(vol[0] > 0)vol[0]--;
-      break;
-      case 1: // normal
-        if(vol[0] > 0)vol[0]--;
-      break;
-      case 2: // fast
-        if(vol[0] > 2)vol[0]-=2;
-        if(vol[0] > 0) vol[0] --;
-      break;
-      case 3: // f-fast
-        if(vol[0] > 4)vol[0] -=4;
-        if(vol[0] > 0) vol[0] --;
-      break;
-    }
-    switch(cEnvMode){
-      // chord decay
-      case 0:  // fast - normal
-        if(vol[1] > 4){vol[1] -= 2;}else if(vol[1] > 0)vol[1]--;
-        if(vol[2] > 4){vol[2] -= 2;}else if(vol[2] > 0)vol[2]--;
-        if(vol[3] > 4){vol[3] -= 2;}else if(vol[3] > 0)vol[3]--;
-        if(vol[4] > 4){vol[4] -= 2;}else if(vol[4] > 0)vol[4]--;
-        break;
-      case 1:  // normal
-        if(vol[1] > 0)vol[1]--;
-        if(vol[2] > 0)vol[2]--;
-        if(vol[3] > 0)vol[3]--;
-        if(vol[4] > 0)vol[4]--;
-        break;
-      case 2:  // fast
-        if(vol[1] > 2)vol[1]-=2;
-        if(vol[1] > 0)vol[1] --;
-        if(vol[2] > 2)vol[2]-=2;
-        if(vol[2] > 0)vol[2] --;
-        if(vol[3] > 2)vol[3]-=2;
-        if(vol[3] > 0)vol[3] --;
-        if(vol[4] > 2)vol[4]-=2;
-        if(vol[4] > 0)vol[4] --;
-        break;
-      case 3:  // f-fast
-        if(vol[1] > 4)vol[1] -=4;
-        if(vol[1] > 0)vol[1] --;
-        if(vol[2] > 4)vol[2] -=4;
-        if(vol[2] > 0)vol[2] --;
-        if(vol[3] > 4)vol[3] -=4;
-        if(vol[3] > 0)vol[3] --;
-        if(vol[4] > 4)vol[4] -=4;
-        if(vol[4] > 0)vol[4] --;
-        break;
+    uint8_t fast_decay;
+    uint8_t fast_decay_rate;
+
+    // melody decay
+    getDecayParams(mEnvMode, &fast_decay, &fast_decay_rate);
+    if (vol[0] > fast_decay) vol[0] -= fast_decay_rate;
+    else if (vol[0] > 0) vol[0]--;
+
+    // chord decay
+    getDecayParams(cEnvMode, &fast_decay, &fast_decay_rate);
+    for (int i = 1; i < 5; i++) {
+      if (vol[i] > fast_decay) vol[i] -= fast_decay_rate;
+      else if (vol[i] > 0) vol[i]--;
     }
   }
+
   if(bcount == 0){
     // button scan loop
     bscan++;
