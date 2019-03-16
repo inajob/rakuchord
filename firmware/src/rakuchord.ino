@@ -1096,7 +1096,6 @@ void logoDraw(){
 }
 
 void setup(){
-  soundSetup();
   lcdSetup();
   lcdClear();
   //logoDraw();
@@ -1148,6 +1147,8 @@ void setup(){
   vol[3] = 12;
   d[4] = getTone(0) >> 1;
   vol[4] = 12;
+
+  soundSetup();
 }
 
 int count = 0;
