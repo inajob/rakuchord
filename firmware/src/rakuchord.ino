@@ -502,7 +502,7 @@ void triggerOn(byte n){
         }
         if(n >= 7 && n < 14){
           setTone(n, trigger[n]);
-        }else if(n < 21){
+        }else if(n >=14 && n < 21){
           setChord(n - 14);
         }
         break;
