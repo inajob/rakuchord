@@ -139,9 +139,9 @@ void setShift(byte no){
   switch(no){
     case 6:
       break;
-    case 3: shiftTone -=1;break;
-    case 4: shiftTone = 12;break;
-    case 5: shiftTone +=1;break;
+    case 3: shiftTone -=1; drawDisplay();break;
+    case 4: shiftTone = 12; drawDisplay();break;
+    case 5: shiftTone +=1; drawDisplay();break;
     //case 3: shiftTone -=1;break;
     //case 4: shiftTone = 12;break;
     //case 5: glideMode = 1;break;
@@ -161,6 +161,7 @@ void setSynthShift(byte no){
     case 4: croctave = 1;break;
     case 5: croctave = 2;break;
   }
+  drawDisplay();
 }
 
 
@@ -258,130 +259,120 @@ void drawText(char* buf, byte y){
   }
 }
 
+char getMEnvModeChar(){
+  switch(mEnvMode){
+    case 0: return 'N';
+    case 3: return 'F';
+  }
+}
+char getCEnvModeChar(){
+  switch(cEnvMode){
+    case 0: return 'N';
+    case 3: return 'F';
+  }
+}
+
 void drawDisplay(){
   drawText("=RAKU CHORD=",0);
-  char buf[12];
-  buf[0] = ' ';
-  buf[1] = 'A';
-  buf[2] = 'R';
-  buf[3] = 'D';
-  buf[4] = 0;
-
-  if(galpe){
-  }else{
-    buf[1] = ' ';
+  char buf[13];
+  char tmp[13];
+ 
+  // line 2
+  switch(waveType){
+    case 0:strncpy(tmp, "SAW", 13);break;
+    case 1:strncpy(tmp, "SQU", 13);break;
+    case 2:strncpy(tmp, "SAW", 13);break;
   }
+  sprintf(buf, "~%3s %c s%02do%02d", tmp, vf?'D':'*', shiftTone, croctave);
+  drawText(buf, 2);
+
+  // line 3, 4 :rythm
+  drawRythm();
   if(grythm){
+    strncpy(tmp, "ON", 13);
   }else{
-    buf[2] = ' ';
+    strncpy(tmp, "OFF", 13);
   }
-  if(vf){
-  }else{
-    buf[3] = ' ';
-  }
-  drawText(buf, 1);
+  sprintf(buf, " %3s %04d", tmp, rSpeed);
+  drawText(buf, 4);
 
+  // line 5, 6 :alpe
+  drawAlpe();
+  if(galpe){
+    strncpy(tmp, "ON", 13);
+  }else{
+    strncpy(tmp, "OFF", 13);
+  }
+  sprintf(buf, " %3s SP:%02d", tmp, arSpeed);
+  drawText(buf, 6);
+
+
+  sprintf(buf, "(M:%c, C:%c)", getMEnvModeChar(), getCEnvModeChar());
+  drawText(buf, 7);
+  
+  // line7
   switch(gmode){
     case M_PLAY: 
-      drawText("PLAY      ",7);
-      drawText("          ",2);
-      drawText("          ",3);
+      drawText(">> PLAY      ",1);
       break;
     case M_STEP: 
-      drawText("STEP      ",7);
-      itoa(rSpeed, buf, 10);
-      drawText("          ",2);
-      drawText("          ",3);
-      drawText(buf,3);
-      drawRythm();
-      drawAlpe();
+      drawText(">> STEP      ",1);
       break;
     case M_SYNTH:
-      drawText("SYNTH     ",7);
-
-      itoa(croctave, buf, 10);
-      drawText("          ",2);
-      drawText("          ",3);
-      drawText(buf,2);
-
-      switch(waveType){
-        case 0:drawText(" SAW     ",3);break;
-        case 1:drawText(" SQUARE  ",3);break;
-        case 2:drawText(" SINE    ",3);break;
-      }
-
+      drawText(">> SYNTH     ",1);
       break;
     case M_MENV: 
-      drawText("MELODY ENV",7);
-      drawText("          ",2);
-      switch(mEnvMode){
-        case 0:drawText(" f-normal",3);break;
-        case 1:drawText(" normal  ",3);break;
-        case 2:drawText(" fast    ",3);break;
-        case 3:drawText(" s-fast  ",3);break;
-      }
+      drawText(">> MELODY ENV",1);
       break;
     case M_CENV: 
-      drawText("CHORD ENV ",7);
-      drawText("          ",2);
-      switch(cEnvMode){
-        case 0:drawText(" f-normal",3);break;
-        case 1:drawText(" normal  ",3);break;
-        case 2:drawText(" fast    ",3);break;
-        case 3:drawText(" s-fast  ",3);break;
-      }
-
+      drawText(">> CHORD ENV ",1);
       break;
     case M_ALPE: 
-      drawText("ALPE      ",7);
-      itoa(arSpeed, buf, 10);
-      drawText("          ",2);
-      drawText("          ",3);
-      drawText(buf,3);
-
-
-      drawRythm();
-      drawAlpe();
+      drawText(">> ALPE      ",1);
       break;
   }
 }
 
 void drawRythm(){
-  char buf[11];
-  buf[0] = '[';
+  char buf[13];
+  buf[0] = 'R';
+  buf[1] = ' ';
+  buf[2] = '[';
   for(byte i = 0; i < 8; i ++){
     switch(rseq[i]){
-      case 0x00:      buf[i + 1]='_';break;
+      case 0x00:      buf[i + 3]='_';break;
 
-      case 0x0f:      buf[i + 1]='A';break;
-      case 0x1f:      buf[i + 1]='B';break;
-      case 0x3f:      buf[i + 1]='C';break;
+      case 0x0f:      buf[i + 3]='A';break;
+      case 0x1f:      buf[i + 3]='B';break;
+      case 0x3f:      buf[i + 3]='C';break;
 
-      case 0x8f|0x80: buf[i + 1]='1';break;
-      case 0x9f|0x80: buf[i + 1]='2';break;
-      case 0xbf|0x80: buf[i + 1]='3';break;
+      case 0x8f|0x80: buf[i + 3]='1';break;
+      case 0x9f|0x80: buf[i + 3]='2';break;
+      case 0xbf|0x80: buf[i + 3]='3';break;
     }
   }
-  buf[9] = ']';
-  buf[10] = 0;
-  drawText(buf, 5);
+  buf[11] = ']';
+  buf[12] = 0;
+  drawText(buf, 3);
 }
 
 void drawAlpe(){
-  char buf[11];
-  buf[0] = '[';
+  char buf[13];
+  buf[0] = 'A';
+  buf[1] = ' ';
+  buf[2] = '[';
   for(byte i = 0; i < 8; i ++){
     switch(aseq[i]){
-      case 0: buf[i + 1]='0';break;
-      case 1: buf[i + 1]='1';break;
-      case 2: buf[i + 1]='2';break;
-      case 3: buf[i + 1]='3';break;
-      case 4: buf[i + 1]='_';break;
+      case 0: buf[i + 3]='0';break;
+      case 1: buf[i + 3]='1';break;
+      case 2: buf[i + 3]='2';break;
+      case 3: buf[i + 3]='3';break;
+      case 4: buf[i + 3]='_';break;
     }
   }
-  buf[9] = ']';
-  buf[10] = 0;
-  drawText(buf, 4);
+  buf[11] = ']';
+  buf[12] = 0;
+  drawText(buf, 5);
 }
 
 
@@ -477,9 +468,9 @@ void triggerOn(byte n){
         if(trigger[n] == 0){
           switch(n){
             case 0: mEnvMode = 0;break;
-            case 1: mEnvMode = 1;break;
-            case 2: mEnvMode = 2;break;
-            case 3: mEnvMode = 3;break;
+            //case 1: mEnvMode = 1;break;
+            //case 2: mEnvMode = 2;break;
+            case 1: mEnvMode = 3;break;
           }
           drawDisplay();
         }
@@ -493,15 +484,15 @@ void triggerOn(byte n){
         if(trigger[n] == 0){
           switch(n){
             case 0: cEnvMode = 0;break;
-            case 1: cEnvMode = 1;break;
-            case 2: cEnvMode = 2;break;
-            case 3: cEnvMode = 3;break;
+            //case 1: cEnvMode = 1;break;
+            //case 2: cEnvMode = 2;break;
+            case 1: cEnvMode = 3;break;
           }
           drawDisplay();
         }
         if(n >= 7 && n < 14){
           setTone(n, trigger[n]);
-        }else if(n < 21){
+        }else if(14 <= n && n < 21){
           setChord(n - 14);
         }
         break;
@@ -971,18 +962,6 @@ inline uint8_t doubleHead(uint8_t x){
     ((0b01000000 & x)>>1) |
     ((0b10000000 & x)>>1) |
     ((0b10000000 & x));
-
-    /*
-    ((0b10000000 & x)>>7) |
-    ((0b10000000 & x)>>6) |
-    ((0b01000000 & x)>>4) |
-    ((0b01000000 & x)>>3) |
-    ((0b00100000 & x)) |
-    ((0b00100000 & x)>>1) |
-    ((0b00010000 & x)<<2) |
-    ((0b00010000 & x)<<3);
-    */
-
 }
 inline uint8_t doubleTail(uint8_t x){
   return
@@ -994,16 +973,6 @@ inline uint8_t doubleTail(uint8_t x){
     ((0b00000010 & x)<<1) |
     ((0b00000001 & x)<<1) |
     ((0b00000001 & x));
-    /*
-    ((0b00001000 & x)>>3) |
-    ((0b00001000 & x)>>2) |
-    ((0b00000100 & x)<<1) |
-    ((0b00000100 & x)) |
-    ((0b00000010 & x)<<3) |
-    ((0b00000010 & x)<<4) |
-    ((0b00000001 & x)<<6) |
-    ((0b00000001 & x)<<7);
-    */
 }
 
 void logoDraw(){
@@ -1103,7 +1072,7 @@ void setup(){
   
   mkWave(0);
   
-  pinMode(2,OUTPUT);
+  pinMode(2,OUTPUT); // sync pulse
   digitalWrite(2, LOW);
 
   pinMode(4,OUTPUT);
