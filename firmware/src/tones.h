@@ -35,7 +35,7 @@
 #define NOTE_AS5 932
 #define NOTE_B5  988
 
-volatile unsigned int tones[]= {
+static const unsigned int tones[] = {
 NOTE_C3,NOTE_CS3,
 NOTE_D3,NOTE_DS3,
 NOTE_E3,
@@ -58,7 +58,8 @@ NOTE_G5,NOTE_GS5,
 NOTE_A5,NOTE_AS5,
 NOTE_B5
 };
-volatile char magic[] = {
+
+static const char magic[] = {
 0 , 2, 4, 5, 7, 9,11,
 12,14,16,17,19,21,23,
 24,26,28,29,31,33,35
