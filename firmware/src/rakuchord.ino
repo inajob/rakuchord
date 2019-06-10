@@ -6,15 +6,16 @@
 // rakuchord first - 0
 // rakuchord rev2
 
+#include <math.h>
 #include <SPI.h>
 #include <Wire.h>
-#include <tones.h>
-#include <MultiTunes.h>
-#include <font.h>
+#include "tones.h"
+#include "MultiTunes.h"
+#include "font.h"
 
 #define ADDRESS_OLED 0x3C
 
-byte trigger[] = {
+static byte trigger[] = {
   0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0,
   0, 0, 0, 0, 0, 0, 0,
@@ -197,7 +198,8 @@ int shift(int n, int s){
 
 void setChord(byte no){
   char buf[32];
-  static byte pre = 0;
+  // Initializing to 0 would make the firmware believe C was playing.
+  static byte pre = 0xff;
   static byte preAdd = M_NONE;
   if(pre != no || preAdd != shiftMode){
     pre = no;
@@ -460,19 +462,25 @@ void drawAlpe(){
 
 void mkWave(byte type){
   waveType = type;
-  for(byte i=0;i < 16; i++){
-    for(byte j=0;j < SAMPLE; j++){
-      switch(type){
+  for (byte i = 0; i < 16; i++) {
+    byte sample;
+
+    for (byte j = 0; j < SAMPLE; j++) {
+      switch (type) {
         case 0:
-          wave[i][j] = i*j/(SAMPLE); // i : vol, j : t
+          sample = i*j/(SAMPLE); // i : vol, j : t
           break;
         case 1:
-          wave[i][j] = 2 * i * ((j & (SAMPLE>>1))?8:0)/(16+8);  // 8 : 0B100
+          sample = 2 * i * ((j & (SAMPLE>>1))?8:0)/(16+8);  // 8 : 0B100
           break;
         case 2:
-          wave[i][j] = i*((sin(j*2*3.14/SAMPLE)+1)/2 * 8)/16;
+          sample = i*((sin(j*2*3.14/SAMPLE)+1)/2 * 8)/16;
           break;
       }
+      if (!(i & 1))
+        wave[i/2][j] = sample & 0xf;
+      else
+        wave[i/2][j] |= sample << 4;
     }
   }
 }
@@ -571,7 +579,7 @@ void triggerOn(byte n){
         }
         if(n >= 7 && n < 14){
           setTone(n, trigger[n]);
-        }else if(14 <= n && n < 21){
+        }else if(n >=14 && n < 21){
           setChord(n - 14);
         }
         break;
@@ -729,7 +737,7 @@ uint8_t display[64]={
   0b11110000, 0b00111100,0b11101110, 0b11100010,
   */
 };
-uint8_t dataA[8]={
+static const uint8_t dataA[8] PROGMEM = {
   0b11111100,
   0b11111110,
   0b00110011,
@@ -739,7 +747,7 @@ uint8_t dataA[8]={
   0b11111100,
   0b00000000,
 };
-uint8_t dataB[8]={
+static const uint8_t dataB[8] PROGMEM = {
   0b11111111,
   0b11111111,
   0b11011011,
@@ -749,7 +757,7 @@ uint8_t dataB[8]={
   0b01101110,
   0b00000000,
 };
-uint8_t dataC[8]={
+static const uint8_t dataC[8] PROGMEM = {
   0b00111100,
   0b01111110,
   0b11100111,
@@ -759,7 +767,7 @@ uint8_t dataC[8]={
   0b01100110,
   0b00000000
 };
-uint8_t dataD[8] = {
+static const uint8_t dataD[8] PROGMEM = {
   0b11111111,
   0b11111111,
   0b11000011,
@@ -769,7 +777,7 @@ uint8_t dataD[8] = {
   0b00111100,
   0b00000000
 };
-uint8_t dataE[8]={
+static const uint8_t dataE[8] PROGMEM = {
   0b11111111,
   0b11111111,
   0b11011011,
@@ -779,7 +787,7 @@ uint8_t dataE[8]={
   0b00000000,
   0b00000000,
 };
-uint8_t dataF[8]={
+static const uint8_t dataF[8] PROGMEM = {
   0b11111111,
   0b11111111,
   0b00011011,
@@ -789,7 +797,7 @@ uint8_t dataF[8]={
   0b00000000,
   0b00000000,
 };
-uint8_t dataG[8]={
+static const uint8_t dataG[8] PROGMEM = {
   0b00111100,
   0b01111110,
   0b11100111,
@@ -800,7 +808,7 @@ uint8_t dataG[8]={
   0b00000000
 };
 
-uint8_t dataSus4[16]={
+static const uint8_t dataSus4[16] PROGMEM = {
   0b10111011, 0b10101110,
   0b10101010, 0b00101010,
   0b11101011, 0b10111010,
@@ -820,7 +828,7 @@ uint8_t dataSus4[16]={
   0b11101110, 0b11100010,
   */
 };
-uint8_t dataMinor[16]={
+static const uint8_t dataMinor[16] PROGMEM = {
   0b11100000, 0b00000000,
   0b11110000, 0b00000000,
   0b00010000, 0b00000000,
@@ -840,7 +848,7 @@ uint8_t dataMinor[16]={
   0b11011011, 0b00000000,
   */
 };
-uint8_t dataMajor[16]={
+static const uint8_t dataMajor[16] PROGMEM = {
   0b00000000, 0b00000000,
   0b00000000, 0b00000000,
   0b00000000, 0b00000000,
@@ -851,7 +859,7 @@ uint8_t dataMajor[16]={
   0b00000000, 0b00000000,
 };
 
-uint8_t logo[64]={
+static const uint8_t logo[64] PROGMEM = {
 /*
   0b00000111, 0b10000000,0b00000000, 0b00000000,
   0b00001111, 0b11000000,0b00000000, 0b00000000,
@@ -931,7 +939,7 @@ uint8_t logo[64]={
 };
 
 
-byte defaultAdd[] = {
+static const byte defaultAdd[] PROGMEM = {
  M_MAJOR, // C
  M_MINOR, // Dm
  M_MINOR, // Em
@@ -941,7 +949,7 @@ byte defaultAdd[] = {
  M_MINOR, // Bm
 };
 
-static unsigned char lookup[16] = {
+static const unsigned char lookup[16] = {
 0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
 0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf, };
 
@@ -988,7 +996,7 @@ void lcdDraw(byte scale,byte add){
     case 6:  scaleBmp = dataB;break;
   }
   if(add == M_NONE){
-    add = defaultAdd[scale];
+    add = pgm_read_byte_near(&defaultAdd[scale]);
   }
   switch(add){
     case M_MINOR: addBmp = dataMinor;break;
@@ -997,10 +1005,10 @@ void lcdDraw(byte scale,byte add){
   }
 
   for(int i = 0; i < 8; i ++){
-    display[32 +1+ i * 4] = reverse(scaleBmp[7-i]);
+    display[32 +1+ i * 4] = reverse(pgm_read_byte_near(&scaleBmp[7-i]));
   }
   for(int i = 0; i < 16; i ++){
-    display[i/2*4 + i%2] = reverse(addBmp[15-i]);
+    display[i/2*4 + i%2] = reverse(pgm_read_byte_near(&addBmp[15-i]));
   }
 
   Wire.beginTransmission(ADDRESS_OLED);
@@ -1069,85 +1077,113 @@ void logoDraw(){
   Wire.endTransmission();
 
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 3]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 3]));
-    Wire.write(doubleTail(logo[j*4 + 3]));
-    Wire.write(doubleTail(logo[j*4 + 3]));
-    Wire.write(doubleTail(logo[j*4 + 3]));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
     Wire.endTransmission();
   }
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 3]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.write(doubleHead(logo[j*4 + 3]));
-    Wire.write(doubleHead(logo[j*4 + 3]));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
     Wire.endTransmission();
   }
 
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 2]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.write(doubleTail(logo[j*4 + 2]));
-    Wire.write(doubleTail(logo[j*4 + 2]));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
     Wire.endTransmission();
   }
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 2]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.write(doubleHead(logo[j*4 + 2]));
-    Wire.write(doubleHead(logo[j*4 + 2]));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
     Wire.endTransmission();
   }
 
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 1]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.write(doubleTail(logo[j*4 + 1]));
-    Wire.write(doubleTail(logo[j*4 + 1]));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
     Wire.endTransmission();
   }
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 1]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.write(doubleHead(logo[j*4 + 1]));
-    Wire.write(doubleHead(logo[j*4 + 1]));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.endTransmission();
+  }
+  
+  for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 0]);
+    Wire.beginTransmission(ADDRESS_OLED);
+    Wire.write(0b01000000);
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
+    Wire.write(doubleTail(b));
     Wire.endTransmission();
   }
   for(int j = 0; j < 16; j ++){
+    uint8_t b = pgm_read_byte_near(&logo[j*4 + 0]);
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.write(doubleTail(logo[j*4 + 0]));
-    Wire.write(doubleTail(logo[j*4 + 0]));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
+    Wire.write(doubleHead(b));
     Wire.endTransmission();
   }
+}
 
-  for(int j = 0; j < 16; j ++){
-    Wire.beginTransmission(ADDRESS_OLED);
-    Wire.write(0b01000000);
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.write(doubleHead(logo[j*4 + 0]));
-    Wire.endTransmission();
+void getDecayParams(uint8_t mode, uint8_t *fast_decay, uint8_t *fast_decay_rate) {
+  switch (mode) {
+    case 0:  // fast - normal
+      *fast_decay = 4;
+      *fast_decay_rate = 2;
+      break;
+    case 2: // fast
+      *fast_decay = 2;
+      *fast_decay_rate = 2;
+      break;
+    case 3: // f-fast
+      *fast_decay = 4;
+      *fast_decay_rate = 4;
+      break;
+    case 1:  // normal
+    default:
+      *fast_decay = 0;
+      *fast_decay_rate = 1;
+      break;
   }
-
 }
 
 void setup(){
-  soundSetup();
   lcdSetup();
   lcdClear();
   //logoDraw();
@@ -1199,6 +1235,8 @@ void setup(){
   vol[3] = 12;
   d[4] = getTone(0) >> 1;
   vol[4] = 12;
+
+  soundSetup();
 }
 
 int count = 0;
@@ -1239,59 +1277,22 @@ void loop(){
   }
 
   if(count == 0){
-    //melody decay
-    switch(mEnvMode){
-      case 0:  // fast - normal
-        if(vol[0] > 4){vol[0] -= 2;}else if(vol[0] > 0)vol[0]--;
-      break;
-      case 1: // normal
-        if(vol[0] > 0)vol[0]--;
-      break;
-      case 2: // fast
-        if(vol[0] > 2)vol[0]-=2;
-        if(vol[0] > 0) vol[0] --;
-      break;
-      case 3: // f-fast
-        if(vol[0] > 4)vol[0] -=4;
-        if(vol[0] > 0) vol[0] --;
-      break;
-    }
-    switch(cEnvMode){
-      // chord decay
-      case 0:  // fast - normal
-        if(vol[1] > 4){vol[1] -= 2;}else if(vol[1] > 0)vol[1]--;
-        if(vol[2] > 4){vol[2] -= 2;}else if(vol[2] > 0)vol[2]--;
-        if(vol[3] > 4){vol[3] -= 2;}else if(vol[3] > 0)vol[3]--;
-        if(vol[4] > 4){vol[4] -= 2;}else if(vol[4] > 0)vol[4]--;
-        break;
-      case 1:  // normal
-        if(vol[1] > 0)vol[1]--;
-        if(vol[2] > 0)vol[2]--;
-        if(vol[3] > 0)vol[3]--;
-        if(vol[4] > 0)vol[4]--;
-        break;
-      case 2:  // fast
-        if(vol[1] > 2)vol[1]-=2;
-        if(vol[1] > 0)vol[1] --;
-        if(vol[2] > 2)vol[2]-=2;
-        if(vol[2] > 0)vol[2] --;
-        if(vol[3] > 2)vol[3]-=2;
-        if(vol[3] > 0)vol[3] --;
-        if(vol[4] > 2)vol[4]-=2;
-        if(vol[4] > 0)vol[4] --;
-        break;
-      case 3:  // f-fast
-        if(vol[1] > 4)vol[1] -=4;
-        if(vol[1] > 0)vol[1] --;
-        if(vol[2] > 4)vol[2] -=4;
-        if(vol[2] > 0)vol[2] --;
-        if(vol[3] > 4)vol[3] -=4;
-        if(vol[3] > 0)vol[3] --;
-        if(vol[4] > 4)vol[4] -=4;
-        if(vol[4] > 0)vol[4] --;
-        break;
+    uint8_t fast_decay;
+    uint8_t fast_decay_rate;
+
+    // melody decay
+    getDecayParams(mEnvMode, &fast_decay, &fast_decay_rate);
+    if (vol[0] > fast_decay) vol[0] -= fast_decay_rate;
+    else if (vol[0] > 0) vol[0]--;
+
+    // chord decay
+    getDecayParams(cEnvMode, &fast_decay, &fast_decay_rate);
+    for (int i = 1; i < 5; i++) {
+      if (vol[i] > fast_decay) vol[i] -= fast_decay_rate;
+      else if (vol[i] > 0) vol[i]--;
     }
   }
+
   if(bcount == 0){
     // button scan loop
     bscan++;
