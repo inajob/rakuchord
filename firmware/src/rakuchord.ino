@@ -31,6 +31,71 @@ byte trigger[] = {
 byte gmode = M_PLAY;
 boolean gsetting = false;
 
+struct Setting {
+  char octave;
+  char croctave;
+  byte waveType;
+  byte aseq[8];
+  bool galpe;
+  unsigned int rSpeed;
+  int arSpeed;
+  byte mEnvMode;
+  byte cEnvMode;
+  byte rseq[8];
+  bool grythm;
+  bool vf;
+};
+
+struct Setting preset[2] ={
+  {
+   1, // octave
+   1, // croctave
+   0, // waveType
+   {1, 2, 3, 0, 1, 2, 3, 0}, // aseq
+   false, // galpe
+   1200, // rSpeed
+   0, // arSpeed
+   0, // mEnvMode
+   0, // cEnvMode
+   {  // rseq
+     0x3f,
+     0x3f,
+     0x3f | 0x80,
+     0,
+     0x3f,
+     0x3f,
+     0x3f | 0x80,
+     0
+   },
+   false, // grythm
+   false, // vf
+  },
+  {
+   1, // octave
+   0, // croctave
+   1, // waveType
+   {1, 2, 3, 0, 1, 2, 3, 0}, // aseq
+   true, // galpe
+   1200, // rSpeed
+   0, // arSpeed
+   0, // mEnvMode
+   0, // cEnvMode
+   {  // rseq
+     0x3f,
+     0x3f,
+     0x3f | 0x80,
+     0,
+     0x3f,
+     0x3f,
+     0x3f | 0x80,
+     0
+   },
+   true, // grythm
+   false, // vf
+  },
+
+};
+
 char octave = 1;
 char croctave = 1; // 和音相対オクターブ
 char shiftTone = 12;
@@ -52,6 +117,42 @@ unsigned int alpeCount = 0;
 
 int aV[] = {0,0,0,0};
 byte toneCount = 0;
+
+#define DSPPED 1200
+unsigned int rSpeed = DSPPED;
+int arSpeed = 0; // alpe speed
+byte mEnvMode = 0;
+byte cEnvMode = 0;
+
+byte rpos = 1;
+byte rseq[]= {
+  0x3f,
+  0x3f,
+  0x3f | 0x80,
+  0,
+  0x3f,
+  0x3f,
+  0x3f | 0x80,
+  0
+  };
+boolean grythm = false;
+
+void loadSetting(struct Setting *setting){
+  octave = setting->octave;
+  croctave = setting->croctave;
+  waveType = setting->waveType;
+  memcpy(aseq, setting->aseq, 8);
+  galpe = setting->galpe;
+  rSpeed = setting->rSpeed;
+  arSpeed = setting->arSpeed;
+  mEnvMode = setting->mEnvMode;
+  cEnvMode = setting->cEnvMode;
+  memcpy(rseq, setting->rseq, 8);
+  grythm = setting->grythm;
+  vf = setting->vf;
+
+  mkWave(waveType);
+}
 
 inline int getTone(byte no){
   return  (tones[shiftMagic + magic[no] + shiftTone]) << (octave);
@@ -163,26 +264,6 @@ void setSynthShift(byte no){
   }
   drawDisplay();
 }
-
-
-#define DSPPED 1200
-unsigned int rSpeed = DSPPED;
-int arSpeed = 0; // alpe speed
-byte mEnvMode = 0;
-byte cEnvMode = 0;
-
-byte rpos = 1;
-byte rseq[]= {
-  0x3f,
-  0x3f,
-  0x3f | 0x80,
-  0,
-  0x3f,
-  0x3f,
-  0x3f | 0x80,
-  0
-  };
-boolean grythm = false;
 
 void setStepShift(byte no){
   switch(no){
@@ -375,8 +456,6 @@ void drawAlpe(){
   drawText(buf, 5);
 }
 
-
-
 #define SAMPLE 64
 
 void mkWave(byte type){
@@ -526,6 +605,10 @@ void triggerOn(byte n){
         case 3: grythm = true;  break;
         case 4: vf = 0;         break;
         case 5: vf = 1;         break;
+
+        case 7: loadSetting(&preset[0]);break;
+        case 8: loadSetting(&preset[1]);break;
+
         case 14:gmode = M_PLAY; break;
         case 15:gmode = M_STEP; break;
         case 16:gmode = M_SYNTH;break;
