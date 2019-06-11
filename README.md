@@ -17,3 +17,13 @@
 - circuit
   - 回路図
 
+# ファームウェアの更新
+
+ビルドには[Platformio](https://platformio.org/)を利用しています。
+このリポジトリをCloneしたのちに書きコマンドでファームウェアを更新できます。
+
+```
+$ cd firmware
+$ platformio run
+```
+
