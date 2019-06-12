@@ -63,8 +63,10 @@ ISR(TIMER1_OVF_vect) {    // Timer/Counter1 Overflow
   unsigned char v, sample;
 #define GET_WAVE_SAMPLE(i)                           \
     (v = vol[i],                                     \
-     sample = wave[v / 2][dn[i] >> 10],              \
-     s[i] = (v & 1) ? sample >> 4 : sample & 0xf)    \
+     (v != 0) ? \
+       sample = wave[v / 2][dn[i] >> 10],              \
+       ((v & 1) ? sample >> 4 : sample & 0xf)    \
+     : 0)
 
   s[0] = GET_WAVE_SAMPLE(0);
   s[1] = GET_WAVE_SAMPLE(1);
