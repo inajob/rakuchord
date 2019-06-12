@@ -381,7 +381,7 @@ void drawDisplay(){
   switch(waveType){
     case 0:strncpy(tmp, "SAW", 20);break;
     case 1:strncpy(tmp, "SQU", 20);break;
-    case 2:strncpy(tmp, "SAW", 20);break;
+    case 2:strncpy(tmp, "SIN", 20);break;
   }
   sprintf(buf, "\a%3s\b \a%c\b S\a%02d\bO\a%02d", tmp, vf?'D':'*', shiftTone, croctave);
   drawText(buf, 2);
