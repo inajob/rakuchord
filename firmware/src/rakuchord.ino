@@ -14,6 +14,7 @@
 #include "font.h"
 
 #define ADDRESS_OLED 0x3C
+#define LINE_BUF_LEN 20
 
 static byte trigger[] = {
   0, 0, 0, 0, 0, 0, 0,
@@ -330,13 +331,29 @@ void drawText(char* buf, byte y){
   Wire.write(127); //Column Stop Address
   Wire.endTransmission();
 
+  bool inverted = false;
   while(*buf != 0){
+    switch(*buf){
+      case '\a': //invert
+        inverted = true;
+        buf++;
+        break;
+      case '\b': //invert
+        inverted = false;
+        buf++;
+        break;
+    }
     Wire.beginTransmission(ADDRESS_OLED);
     Wire.write(0b01000000);
-    for(int i = 0; i < 4; i ++){
-      Wire.write(pgm_read_byte_near(&(font[*buf-' '][i])));
+    Wire.write(inverted?0xfe:0x00);
+    for(int i = 0; i < 3; i ++){
+      if(inverted){
+        Wire.write(0xfe&~pgm_read_byte_near(&(font[*buf-' '][i])));
+      }else{
+        Wire.write(pgm_read_byte_near(&(font[*buf-' '][i])));
+      }
     }
-    Wire.write(0x00);
+    Wire.write(inverted?0xfe:0x00);
     Wire.endTransmission();
     buf++;
   }
@@ -357,104 +374,108 @@ char getCEnvModeChar(){
 
 void drawDisplay(){
   drawText("=RAKU CHORD=",0);
-  char buf[13];
-  char tmp[13];
+  char buf[LINE_BUF_LEN];
+  char tmp[LINE_BUF_LEN];
  
   // line 2
   switch(waveType){
-    case 0:strncpy(tmp, "SAW", 13);break;
-    case 1:strncpy(tmp, "SQU", 13);break;
-    case 2:strncpy(tmp, "SAW", 13);break;
+    case 0:strncpy(tmp, "SAW", 20);break;
+    case 1:strncpy(tmp, "SQU", 20);break;
+    case 2:strncpy(tmp, "SAW", 20);break;
   }
-  sprintf(buf, "~%3s %c s%02do%02d", tmp, vf?'D':'*', shiftTone, croctave);
+  sprintf(buf, "\a%3s\b \a%c\b S\a%02d\bO\a%02d", tmp, vf?'D':'*', shiftTone, croctave);
   drawText(buf, 2);
 
   // line 3, 4 :rythm
   drawRythm();
   if(grythm){
-    strncpy(tmp, "ON", 13);
+    strncpy(tmp, " \aON\b", LINE_BUF_LEN);
   }else{
-    strncpy(tmp, "OFF", 13);
+    strncpy(tmp, "OFF", LINE_BUF_LEN);
   }
-  sprintf(buf, " %3s %04d", tmp, rSpeed);
+  sprintf(buf, " %s \a%04d", tmp, rSpeed);
   drawText(buf, 4);
 
   // line 5, 6 :alpe
   drawAlpe();
   if(galpe){
-    strncpy(tmp, "ON", 13);
+    strncpy(tmp, " \aON\b", LINE_BUF_LEN);
   }else{
-    strncpy(tmp, "OFF", 13);
+    strncpy(tmp, "OFF", LINE_BUF_LEN);
   }
-  sprintf(buf, " %3s SP:%02d", tmp, arSpeed);
+  sprintf(buf, " %s SP:\a%02d", tmp, arSpeed);
   drawText(buf, 6);
 
 
-  sprintf(buf, "(M:%c, C:%c)", getMEnvModeChar(), getCEnvModeChar());
+  sprintf(buf, "(M:\a%c\b, C:\a%c\b)", getMEnvModeChar(), getCEnvModeChar());
   drawText(buf, 7);
   
   // line7
   switch(gmode){
     case M_PLAY: 
-      drawText(">> PLAY      ",1);
+      drawText("\a>> PLAY      ",1);
       break;
     case M_STEP: 
-      drawText(">> STEP      ",1);
+      drawText("\a>> STEP      ",1);
       break;
     case M_SYNTH:
-      drawText(">> SYNTH     ",1);
+      drawText("\a>> SYNTH     ",1);
       break;
     case M_MENV: 
-      drawText(">> MELODY ENV",1);
+      drawText("\a>> MELODY ENV",1);
       break;
     case M_CENV: 
-      drawText(">> CHORD ENV ",1);
+      drawText("\a>> CHORD ENV ",1);
       break;
     case M_ALPE: 
-      drawText(">> ALPE      ",1);
+      drawText("\a>> ALPE      ",1);
       break;
   }
 }
 
 void drawRythm(){
-  char buf[13];
-  buf[0] = 'R';
-  buf[1] = ' ';
-  buf[2] = '[';
+  char buf[LINE_BUF_LEN];
+  buf[0] = '\a';
+  buf[1] = 'R';
+  buf[2] = '\b';
+  buf[3] = ' ';
+  buf[4] = ' ';
   for(byte i = 0; i < 8; i ++){
     switch(rseq[i]){
-      case 0x00:      buf[i + 3]='_';break;
+      case 0x00:      buf[i + 5]='_';break;
 
-      case 0x0f:      buf[i + 3]='A';break;
-      case 0x1f:      buf[i + 3]='B';break;
-      case 0x3f:      buf[i + 3]='C';break;
+      case 0x0f:      buf[i + 5]='A';break;
+      case 0x1f:      buf[i + 5]='B';break;
+      case 0x3f:      buf[i + 5]='C';break;
 
-      case 0x8f|0x80: buf[i + 3]='1';break;
-      case 0x9f|0x80: buf[i + 3]='2';break;
-      case 0xbf|0x80: buf[i + 3]='3';break;
+      case 0x8f|0x80: buf[i + 5]='1';break;
+      case 0x9f|0x80: buf[i + 5]='2';break;
+      case 0xbf|0x80: buf[i + 5]='3';break;
     }
   }
-  buf[11] = ']';
-  buf[12] = 0;
+  buf[13] = ' ';
+  buf[14] = 0;
   drawText(buf, 3);
 }
 
 void drawAlpe(){
-  char buf[13];
-  buf[0] = 'A';
-  buf[1] = ' ';
-  buf[2] = '[';
+  char buf[LINE_BUF_LEN];
+  buf[0] = '\a';
+  buf[1] = 'A';
+  buf[2] = '\b';
+  buf[3] = ' ';
+  buf[4] = ' ';
   for(byte i = 0; i < 8; i ++){
     switch(aseq[i]){
-      case 0: buf[i + 3]='0';break;
-      case 1: buf[i + 3]='1';break;
-      case 2: buf[i + 3]='2';break;
-      case 3: buf[i + 3]='3';break;
-      case 4: buf[i + 3]='_';break;
+      case 0: buf[i + 5]='0';break;
+      case 1: buf[i + 5]='1';break;
+      case 2: buf[i + 5]='2';break;
+      case 3: buf[i + 5]='3';break;
+      case 4: buf[i + 5]='_';break;
     }
   }
-  buf[11] = ']';
-  buf[12] = 0;
+  buf[13] = ' ';
+  buf[14] = 0;
   drawText(buf, 5);
 }
 
