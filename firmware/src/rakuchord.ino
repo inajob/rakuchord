@@ -277,17 +277,26 @@ void setStepShift(byte no){
     case 2: rSpeed +=64;break;
   }
 }
+
 void setAlpeShift(byte no){
   switch(no){
     case 6:
-      break;
-    case 0: arSpeed = 2; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 1;break;
-    case 1: arSpeed = 1; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 1;break;
-    case 2: arSpeed = 0; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 1;break;
-    case 3: arSpeed = -1; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 1;break;
-    case 4: arSpeed = -2;alpeCount = 0;apos = 0; rythmCount = 0;rpos = 1;break;
-    case 5: arSpeed = -3; alpeCount = 0;apos = 0; rythmCount = 0;rpos = 1;break;
+      return;
+    case 0: arSpeed = 2; break;
+    case 1: arSpeed = 1; break;
+    case 2: arSpeed = 0; break;
+    case 3: arSpeed = -1; break;
+    case 4: arSpeed = -2; break;
+    case 5: arSpeed = -3; break;
   }
+
+  apos = 0;
+  rpos = 1;
+
+  noInterrupts();
+  rythmCount = 0;
+  alpeCount = 0;
+  interrupts();
 }
 
 void setStep(byte n){
@@ -1265,9 +1274,22 @@ byte bcount = 0;
 byte rcount = 0;
 byte bscan = 0;
 
-void loop(){
-  if(rythmCount == 0){
-    // rythm loop
+void updateRythm() {
+  static bool beatStart = false;
+  unsigned int rythm;
+  byte numLooped = 0;
+
+  // Disable interrupts so we can access rythmCount
+  noInterrupts();
+  while (rythmCount > rSpeed) {
+      rythmCount -= rSpeed;
+      numLooped++;
+  }
+  // Local copy so we can reactivate interrupts
+  rythm = rythmCount;
+  interrupts();
+
+  while (numLooped--) {
     if(grythm){
       if(rseq[rpos]){
         if((rseq[rpos] & 0x80) == 0x80){
@@ -1279,13 +1301,38 @@ void loop(){
     }
     rpos = (rpos + 1) & B0111;
     digitalWrite(2, HIGH); // sync pulse
+    beatStart = true;
   }
-  if(rythmCount == 100){
+  if (beatStart && rythm >= 100) {
     digitalWrite(2, LOW); // sync pulse
+    beatStart = false;
   }
-  if(alpeCount == 0){
+}
+
+void updateAlpe() {
+  unsigned int alpe;
+  byte numLooped = 0;
+
+  // Disable interrupts so we can access alpeCount
+  noInterrupts();
+  while (alpeCount > (shift(rSpeed, arSpeed))) {
+    alpeCount -= (shift(rSpeed, arSpeed));
+    numLooped++;
+  }
+  // Local copy so we can reactivate interrupts
+  alpe = alpeCount;
+  interrupts();
+
+  // Move to next note
+  while (numLooped--) {
     apos = (apos + 1) & B0111;
   }
+}
+
+void loop(){
+
+  updateRythm();
+  updateAlpe();
 
   if(rcount == 0){
     // rethm decay
@@ -1419,12 +1466,4 @@ void loop(){
   rcount = (rcount + 1) & 0x7f;
   bcount = (bcount + 1) & 0xf;
   count = (count + 1) & 0x1ff;
-  rythmCount = (rythmCount + 1);
-  if(rythmCount > rSpeed){
-    rythmCount = 0;
-  }
-  alpeCount = (alpeCount + 1);
-  if(alpeCount > (shift(rSpeed, arSpeed))){
-    alpeCount = 0;
-  }
 }
