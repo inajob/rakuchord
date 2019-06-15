@@ -78,7 +78,7 @@ module jack_diff(){
 
 *base_board();
 
-// case
+// not maintain: case
 *union(){
     difference(){
         upper_case_outer(13);
@@ -91,7 +91,8 @@ module jack_diff(){
     }
 }
 
-linear_extrude(height=3) difference(){
+// no use: upper parts of top
+*linear_extrude(height=3) difference(){
     translate([0,0, 0]) rotate([0,180,0]){
         translate([0,3,0])
           offset(2) offset(-2){
@@ -105,7 +106,8 @@ linear_extrude(height=3) difference(){
     upper_hole();
 }
 
-translate([0,0,3]) linear_extrude(height=3) difference(){
+// no use: lower parts of top
+*translate([0,0,3]) linear_extrude(height=3) difference(){
     translate([0,0, 0]) rotate([0,180,0]){
         translate([0,3,0])
           offset(2) offset(-2){
@@ -121,7 +123,8 @@ translate([0,0,3]) linear_extrude(height=3) difference(){
     upper_hole2();
 }
 
-*translate([0,0,40]) difference(){
+// top
+translate([0,0,40]) difference(){
     upper_case_outer();
     translate([0,0,0])linear_extrude(height=3){
       upper_hole();
@@ -147,6 +150,15 @@ translate([0,0,3]) linear_extrude(height=3) difference(){
       *key1_space();
     }
     jack_diff();
+    // this makes easier for 3D print
+    translate([0,0,5.5]) linear_extrude(height = 0.5){
+      translate([20,4,0]) square([10,0.5], center = true);
+      
+      translate([50,45,0]) square([20,0.5], center = true);
+      translate([-50,45,0]) square([20,0.5], center = true);
+      translate([50,-43,0]) square([20,0.5], center = true);
+      translate([-50,-43,0]) square([20,0.5], center = true);
+    }
 }
 
 module sub_board(){
@@ -206,6 +218,7 @@ module speaker_hold(){
 
 thread = "none"; //modeled
 
+
 *translate([0,0,-34]){
     difference(){
         union(){
@@ -234,7 +247,6 @@ thread = "none"; //modeled
                 translate([33, 0, 0]) screw_thread(cod,sth,clf,8,crs,-2);
                 translate([-33, 0, 0]) screw_thread(cod,sth,clf,8,crs,-2);;
                 screw_hole();
-
             }
             linear_extrude(height = 5){
                 difference(){
@@ -270,6 +282,16 @@ thread = "none"; //modeled
             }
         }
         screw_hole();
+        // this makes easier for 3D print
+        linear_extrude(height = 0.5){
+          translate([50,0,0]) square([20,0.5], center = true);
+          translate([-50,0,0]) square([20,0.5], center = true);
+          translate([50,45,0]) square([20,0.5], center = true);
+          translate([-50,45,0]) square([20,0.5], center = true);
+          translate([50,-43,0]) square([20,0.5], center = true);
+          translate([-50,-43,0]) square([20,0.5], center = true);
+        }
+
     }
 }
 
