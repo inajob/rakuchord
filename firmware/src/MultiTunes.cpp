@@ -38,8 +38,9 @@ void soundSetup(){
 // sample 16 -> 12
 // sample 32 -> 11
 // sample 64 -> 10
-volatile byte realcount = 0;
 ISR(TIMER1_OVF_vect) {    // Timer/Counter1 Overflow
+  static byte realcount = 0;
+
   TCNT2 = timerLoadValue; // Reset the timer
   dn[0] = dn[0] + d[0];/* + vf * ((*(wave[15] + (lfo >> 10))) << 2);*/
   dn[1] = dn[1] + d[1];
