@@ -19,6 +19,9 @@ const unsigned int timerLoadValue = 220;
 
 volatile byte nv = 5;
 
+extern unsigned int rythmCount;
+extern unsigned int alpeCount;
+
 void soundSetup(){
   //mkWave(0);
 
@@ -38,8 +41,11 @@ void soundSetup(){
 // sample 16 -> 12
 // sample 32 -> 11
 // sample 64 -> 10
-volatile byte realcount = 0;
 ISR(TIMER1_OVF_vect) {    // Timer/Counter1 Overflow
+  static byte realcount = 0;
+  static byte timeCount = 0;
+  constexpr byte interruptsPerTick = 8;
+
   TCNT2 = timerLoadValue; // Reset the timer
   dn[0] = dn[0] + d[0];/* + vf * ((*(wave[15] + (lfo >> 10))) << 2);*/
   dn[1] = dn[1] + d[1];
@@ -57,8 +63,10 @@ ISR(TIMER1_OVF_vect) {    // Timer/Counter1 Overflow
   unsigned char v, sample;
 #define GET_WAVE_SAMPLE(i)                           \
     (v = vol[i],                                     \
-     sample = wave[v / 2][dn[i] >> 10],              \
-     s[i] = (v & 1) ? sample >> 4 : sample & 0xf)    \
+     (v != 0) ? \
+       sample = wave[v / 2][dn[i] >> 10],              \
+       ((v & 1) ? sample >> 4 : sample & 0xf)    \
+     : 0)
 
   s[0] = GET_WAVE_SAMPLE(0);
   s[1] = GET_WAVE_SAMPLE(1);
@@ -70,5 +78,12 @@ ISR(TIMER1_OVF_vect) {    // Timer/Counter1 Overflow
           s[0] + s[1] + s[2] + s[3] + s[4] +
           ((noise) & nf) + ((noise2>>8) &nf2);
   OCR1A = level;
+
+  // Update time counters
+  if (++timeCount == interruptsPerTick) {
+    rythmCount++;
+    alpeCount++;
+    timeCount = 0;
+  }
 }
 
