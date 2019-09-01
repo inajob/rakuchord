@@ -48,8 +48,8 @@ struct Setting {
   bool vf;
 };
 
-struct Setting preset[2] ={
-  {
+struct Setting preset[4] ={
+  { // == simple =====================================
    1, // octave
    1, // croctave
    0, // waveType
@@ -72,7 +72,7 @@ struct Setting preset[2] ={
    false, // grythm
    false, // vf
   },
-  {
+  { // == pico rythm =====================================
    1, // octave
    0, // croctave
    1, // waveType
@@ -95,6 +95,54 @@ struct Setting preset[2] ={
    true, // grythm
    false, // vf
   },
+  { // == loud  =====================================
+   1, // octave
+   0, // croctave
+   0, // waveType
+   {1, 2, 3, 0, 1, 2, 3, 0}, // aseq
+   false, // galpe
+   1200, // rSpeed
+   0, // arSpeed
+   0, // mEnvMode
+   0, // cEnvMode
+   {  // rseq
+     0x3f,
+     0x3f,
+     0x3f | 0x80,
+     0,
+     0x3f,
+     0x3f,
+     0x3f | 0x80,
+     0
+   },
+   false, // grythm
+   true, // vf
+  },
+  { // == another seq  =====================================
+   1, // octave
+   0, // croctave
+   0, // waveType
+   {0, 4, 1, 4, 0, 4, 1, 4}, // aseq
+   true, // galpe
+   1200, // rSpeed
+   0, // arSpeed
+   0, // mEnvMode
+   0, // cEnvMode
+   {  // rseq
+     0x3f,
+     0x3f,
+     0x3f | 0x80,
+     0,
+     0x3f,
+     0x3f,
+     0x3f | 0x80,
+     0
+   },
+   true, // grythm
+   false, // vf
+  },
+
+
 
 };
 
@@ -646,6 +694,8 @@ void triggerOn(byte n){
 
         case 7: loadSetting(&preset[0]);break;
         case 8: loadSetting(&preset[1]);break;
+        case 9: loadSetting(&preset[2]);break;
+        case 10: loadSetting(&preset[3]);break;
 
         case 14:gmode = M_PLAY; break;
         case 15:gmode = M_STEP; break;
