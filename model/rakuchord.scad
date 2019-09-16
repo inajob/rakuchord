@@ -124,7 +124,7 @@ module jack_diff(){
 }
 
 // top
-translate([0,0,40]) difference(){
+*translate([0,0,40]) difference(){
     upper_case_outer();
     translate([0,0,0])linear_extrude(height=3){
       upper_hole();
@@ -316,7 +316,7 @@ module battery_holder(){
         } 
     }
 }
-*battery_holder();
+battery_holder();
 
 module bolts(){
     hg = 8;  // height
