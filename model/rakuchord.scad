@@ -53,11 +53,11 @@ module upper_case_outer(){
 module upper_hole(){
   //square([73, 90], center = true);
   translate([-136,77,0])
-    import(file = "dxf/rakuchord-draft-Eco1.User.dxf");
+    import(file = "dxf/rakuchord-draft-Eco1_User.dxf");
 }
 module upper_hole2(){
   translate([-136,77,0])
-    import(file = "dxf/rakuchord-draft-Dwgs.User.dxf");
+    import(file = "dxf/rakuchord-draft-Dwgs_User.dxf");
 }
 
 module key1_space(){
@@ -70,8 +70,8 @@ module cable_hole(){
 }
 
 module jack_diff(){
-    translate([14,-40+3,3]) rotate([90,0,0]) linear_extrude(height=20){
-       translate([0,5,0])square([14,14], center = true);
+    translate([13.5,-40,0]) rotate([90,0,0]) linear_extrude(height=20){
+       translate([0,5,0])square([14+2,14], center = true);
        circle(7);
     }
 }
@@ -124,7 +124,7 @@ module jack_diff(){
 }
 
 // top
-*translate([0,0,40]) difference(){
+translate([0,0,40]) difference(){
     upper_case_outer();
     translate([0,0,0])linear_extrude(height=3){
       upper_hole();
@@ -219,7 +219,7 @@ module speaker_hold(){
 thread = "none"; //modeled
 
 
-*translate([0,0,-34]){
+translate([0,0,-34]){
     difference(){
         union(){
             linear_extrude(height = 36){
@@ -316,7 +316,7 @@ module battery_holder(){
         } 
     }
 }
-battery_holder();
+*battery_holder();
 
 module bolts(){
     hg = 8;  // height
