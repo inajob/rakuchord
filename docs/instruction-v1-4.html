@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RakuChord(らくこーど) v1.4 - 組み立て説明</title>
+<!-- ogp -->
+<meta name="description" content="RakuChord(らくこーど) の組み立て説明">
+<meta property="og:title"       content="RakuChord(らくこーど) の組み立て説明">
+<meta property="og:description" content="RakuChord(らくこーど) の組み立て説明です">
+<meta property="og:url"         content="https://inajob.github.io/rakuchord/">
+<meta property="og:image"       content="https://inajob.github.io/rakuchord/imgs/rakuchord-p-next.png">
+<meta name="twitter:card"       content="player">
+<meta name="twitter:player"     content="https://www.youtube.com/embed/s02K6fFJftc?rel=0&amp;controls=0&amp;showinfo=0">
+<meta name="twitter:player:width" content="640">
+<meta name="twitter:player:height" content="360">
+<meta name="twitter:player:stream:content_type" content="video/mp4;">
+<meta name="twitter:site:id"    content="@ina_ani">
+<meta name="twitter:creator"    content="@ina_ani">
+<!-- /ogp -->
+<link rel="stylesheet" href="rakuchord.css">
+<script src="js/markdown-it.min.js"></script>
+</head>
+<body>
+<h1>RakuChord v1.4 組み立て説明 - <span class="keep">らくこーど</span></h1>
+<div class="right">
+<a class="twitter-share-button"
+  href="https://twitter.com/intent/tweet">
+Tweet</a>
+<a href="http://b.hatena.ne.jp/entry/" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a><script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+</div>
+
+<div id="contents">
+<a href="index.html">戻る</a>
+
+## 概要
+
+RakuChordの2020年9月時点での最新版、通称v1.4の組み立て説明書です。
+
+この製品はキットとして提供します。自分で組み立てる必要があります。
+
+また、この製品を使って起きたいかなる問題も作者は責任を負いませんので、自己責任にて使用してください。
+
+<div class="bug">
+v1.4は以前のバージョンに比べて、基板上のミスが多く、いくつかの工程で普通のはんだ付け以上の難易度の高い作業があります。
+
+購入を検討する際は、一通りの手順を確認し、自分で組み立てができるかを確認してください。
+
+特に難しい工程は、この注意書きのように赤背景、赤文字で記載してあります。
+</div>
+
+## 必要工具
+- はんだごて
+  - はんだ
+- プラスドライバー
+- ラジオペンチ
+- ニッパー
+- テスター（なくてもよい）
+
+## 部品の確認
+
+キットによって微妙に写真と違う色や形のものが入っていることがありますが、刻印などに従ってどの部品か判断してください。
+また、今後の組み立て説明の写真についても、同様に同梱されている部品とは色や形が違う部品が使用されていることがあります。刻印を確認しながら組み立ててください。
+
+|画像|名称|個数|備考
+|:--|:-- |:---|:---
+|<img class="parts" src="imgs/parts/sw12.jpg">|タクトスイッチ（大）|21|12mm * 12mmサイズのスイッチ
+|<img class="parts" src="imgs/parts/sw6.jpg">|タクトスイッチ（小）|7|6mm * 6mmサイズのスイッチ
+|<img class="parts" src="imgs/parts/lm386.jpg">|LM386 オーディオアンプ|1|386と書かれた8ピンのIC
+|<img class="parts" src="imgs/parts-3/socket8.jpg">|8ピンICソケット|1|LM386を入れるためのソケット
+|<img class="parts" src="imgs/parts/slideswitch.jpg">|スライドスイッチ|1
+|<img class="parts" src="imgs/parts-1-4/volume.jpg">|ボリューム|1
+|<img class="parts" src="imgs/parts/ec220.jpg">|220uF電解コンデンサ|1|220uFと書かれた電解コンデンサ
+|<img class="parts" src="imgs/parts/ec220.jpg">|100uF電解コンデンサ|1|100uFと書かれた電解コンデンサ
+|<img class="parts" src="imgs/parts/ec10.jpg">|10uF電解コンデンサ|2|10uFと書かれた電解コンデンサ
+|<img class="parts" src="imgs/parts/c104.jpg">|0.1uFコンデンサ (104)|1|104と書かれたコンデンサ(形状は違うものがあります、104の刻印を確認してください)
+|<img class="parts" src="imgs/parts/c102.jpg">|1000pFコンデンサ(102)|1|102と書かれたコンデンサ
+|<img class="parts" src="imgs/parts-3/c106.jpg">|10uFコンデンサ(106)|1|106と書かれたコンデンサ
+|<img class="parts" src="imgs/parts/speaker.jpg">|8Ω3W長方形スピーカ|1
+|<img class="parts" src="imgs/parts/xhconnector.jpg">|XHコネクタ|2|電池ケースとスピーカに組み立て済み
+|<img class="parts" src="imgs/parts/xhhousing.jpg">|XHコネクタハウジング|2
+|<img class="parts" src="imgs/parts/jack.jpg">|3.5mmオーディオジャック|1
+|<img class="parts" src="imgs/parts/battery.jpg">|単4電池x4ケース|1
+|<img class="parts" src="imgs/parts/bolt.jpg">|M3 * 40mmねじ|4|
+|<img class="parts" src="imgs/parts/nut.jpg">|M3ナット|4
+|<img class="parts" src="imgs/parts/led.jpg">|LED|1
+|<img class="parts" src="imgs/parts/r470.jpg">|470Ω抵抗|1|黄紫茶金の抵抗
+|<img class="parts" src="imgs/parts/r10k.jpg">|10KΩ抵抗|3|茶黒橙金の抵抗
+|<img class="parts" src="imgs/parts-next/r1k.jpg">|1KΩ抵抗|2|茶黒赤金の抵抗
+|<img class="parts" src="imgs/parts/8lpin.jpg">|L字8ピンヘッダ|1
+|<img class="parts" src="imgs/parts/8pinsocket.jpg">|1列8ピンソケット|1|色違いのものもあります。
+|<img class="parts" src="imgs/parts-next/diode.jpg">|ダイオード|28|
+|<img class="parts" src="imgs/parts-next/oled.jpg">|OLED|1| 強い力が加わると割れてしまうので気を付けてください
+|<img class="parts" src="imgs/parts-next/arduino-nano.jpg">|Arduino Nano|1|互換品です
+|<img class="parts" src="imgs/parts-next/15pin.jpg">|15ピンヘッダ|2|
+|<img class="parts" src="imgs/parts-next/main.jpg">|メイン基板|1
+|<img class="parts" src="imgs/parts-next/sub.jpg">|サブ基板|1
+|<img class="parts" src="imgs/parts-next/top.jpg">|筐体・カバースペーサー|1
+|<img class="parts" src="imgs/parts-next/top-panel.jpg">|筐体・フロントパネル|1
+|<img class="parts" src="imgs/parts-next/bottom.jpg">|筐体・本体|1
+|<img class="parts" src="imgs/parts/holder.jpg">|電池固定バー|1|色違いのものもあります
+|<img class="parts" src="imgs/parts/boltmodel.jpg">|電池固定ねじ|2|色違いのものもあります
+
+<!--
+||XHコネクタコンタクト|4|組み立て済みのほうがよいかも
+||3ピンヘッダ|1|手順に書いてない。いらないかも
+-->
+
+乾電池は付属しません 単四乾電池4本が必要です
+
+## 表、裏の確認
+
+まず基板の表・裏に注意してください。
+まずは、基板の裏側から部品を実装していきます。
+
+<img src="imgs/instruction-out-1-4/0000-board.jpg" />
+
+## ダイオード
+
+ダイオードには極性があります。
+”→”のような記号が刻印されているので、矢印の先の方向にダイオードの黒い帯が向くように配置してください。
+
+<img src="imgs/instruction-out-1-4/0100-diode.jpg" />
+
+部品の裏はこのようになっています。奥まで差し込んだのちにはんだ付けしてください。
+また、部品の足をハの字状に折り曲げることで裏返したときに落下を防ぐことができます。
+
+<img src="imgs/instruction-out-1-4/0110-diode-foot.jpg" />
+
+一気に21個のダイオードを配置すると写真のようになります。
+
+<img src="imgs/instruction-out-1-4/0120-diode-mount.jpg" />
+
+裏面はこのようになっています。はんだ付けします。
+
+<img src="imgs/instruction-out-1-4/0130-diode-back.jpg" />
+
+その後ニッパーで足を短く切り取ります。針金が飛び散るので、注意して作業してください。
+
+<img src="imgs/instruction-out-1-4/0140-diode-pilers.jpg" />
+
+すべてニッパで切るとこのようになります。
+以降、はんだ付けと、足の切断について、説明は省略しますが、足の長い部品はすべてこのように組み立ててください。
+
+<img src="imgs/instruction-out-1-4/0150-diode-back-comp.jpg" />
+
+
+## 抵抗・コンデンサ・アンプ
+
+徐々に背の高い部品をはんだ付けしていきます。
+抵抗は種類が多いので、気を付けてください。向きは関係ないので、気にせず配置して構いません。
+コンデンサも種類があるので気を付けてください。向きは関係ないです。
+
+<img src="imgs/instruction-out-1-4/0210-register.jpg" />
+
+## コネクタ
+
+コネクタは向きに注意してください。
+
+<img src="imgs/instruction-out-1-4/0410-connector.jpg" />
+
+## 電解コンデンサ
+
+電解コンデンサを設置します。向きがあるので注意してください。
+
+<img src="imgs/instruction-out-1-4/0510-ecap.jpg" />
+
+## LM386
+
+LM386をソケットに挿入してください。その際LM386の向きに注意してください。
+
+<div class="notice" style="border:dotted 3px red;background-color:white;padding:3em;">
+  同梱しているLM386によく不良品が混ざるので、念のため2つ同梱しています。うまく動かない場合はLM386を交換してみてください。
+</div>
+
+<img src="imgs/instruction-out-1-4/0211-lm386.jpg" />
+
+## Arduino Nano
+
+Ardinoの固定は、ピンの向きに注意してください。
+長いほうがArduinoの側に来るようにして、基板の表に露出するピンの長さを短くなるようにします。
+
+<img src="imgs/instruction-out-1-4/0610-arduino.jpg" />
+
+表側です。ピンがほとんど出ていないことを確認してください。
+<img src="imgs/instruction-out-1-4/0620-arduino-back.jpg" />
+
+## 電源スイッチ
+
+電源スイッチです。今までとは逆に基板の表面に固定することに注意してください。
+今後のことを考え、スイッチはOFFにしておいてください。
+
+<div class="notice" style="border:dotted 3px red;background-color:white;padding:3em;">
+  写真ではスイッチがONになっていますがOFFにしてください
+</div>
+
+
+<img src="imgs/instruction-out-1-4/0710-switch.jpg" />
+
+## オーディオジャック・ボリューム
+
+オーディオジャックもスイッチと同じ面に設置します。
+ボリュームは次の画像で説明します。
+
+<div class="bug">
+  v1.4のバグとしてボリュームのフットプリントが、基板に示されたものと逆の面になっています。この説明書の写真が正しいので、基板の表示は無視して実装してください。
+</div>
+
+<img src="imgs/instruction-out-1-4/0810-jack.jpg" />
+
+ボリュームは写真のように部品面に設置します。
+また、はんだボールを作って写真のように接続してください。（1.4のバグ回避）
+
+<div class="bug">
+  v1.4のバグとして、ボリュームの配線が間違っており、上記のようにはんだボールを使い適切な配線に修正する必要があります。
+</div>
+
+さらに、写真右上のように余った導線を使って回路をショートさせてください。（1.4のバグ回避）
+
+<div class="bug">
+  v1.4のバグとして、電解コンデンサ周りの回路に誤りがあり、上記のように配線を修正する必要があります。
+</div>
+
+<img src="imgs/instruction-out-1-4/0820-volume-hack.jpg" />
+
+## 動作確認
+
+つまみを回してボリュームを最大まで上げます。
+
+スピーカと電源の配線をつなげて、電源スイッチを入れてください。
+1秒ほど起動音がスピーカから鳴れば、ここまでの作業は問題ありません。
+
+動作がおかしい場合は、なるべく早く電源ケーブルを抜いて、ここまでの手順を確認してください。
+
+動作確認ができたら、電源をオフにし、バッテリー、スピーカーを取り外します。
+
+<img src="imgs/instruction-out-1-4/0910-check.jpg" />
+
+## メインスイッチ
+
+メインのスイッチを21個設置します。
+
+<img src="imgs/instruction-out-1-4/1010-buttons.jpg" />
+
+## LED
+
+電源LEDを設置します。
+向きがあるので注意してください。
+
+<img src="imgs/instruction-out-1-4/1110-led.jpg" />
+
+
+## サブ基板のダイオード
+
+サブ基板にもダイオードを設置します。基板の表裏と、ダイオードの向きに注意してください。
+
+<img src="imgs/instruction-out-next/1210-diode.jpg" />
+
+## サブ基板のスイッチ
+
+サブ基板のスイッチを設置します。
+色は好みで好きにして構いません。（お勧めは写真の並びです）
+
+<img src="imgs/instruction-out-next/1310-buttons.jpg" />
+
+## 2つの基板の結合
+
+写真のように、8ピンソケットにL字ピンを差し込みます。
+
+<img src="imgs/instruction-out-next/1411-headers.jpg" />
+
+写真のように、基板2枚を、先ほどのソケットを介してL字につなげます。
+
+<img src="imgs/instruction-out-next/1511-compose.jpg" />
+
+ケースに差し込んで（サブ基板を滑り込ませる溝があります）、この状態ではんだ付けします。
+はんだ付け後は、作業をしやすくするために、ソケットを外すと良いでしょう。
+
+
+<img src="imgs/instruction-out-next/1610-case.jpg" />
+
+## OLEDの取り付け
+
+<div class="notice" style="border:dotted 3px red;background-color:white;padding:3em;">
+この手順を実施すると、OLEDの下の回路の修正が困難になります。前述の動作確認が確実に完了してから、この手順を実施してください。
+</div>
+
+OLEDは強く力を加えると壊れてしまうので注意して扱ってください。
+
+<img src="imgs/instruction-out-3/1710-oled-mount.jpg" />
+
+横から見て、このように、基板に対して水平になるように固定して、はんだ付けしてください。
+
+<img src="imgs/instruction-out-3/1720-oled-check.jpg" />
+
+## 再び動作確認
+
+ここで再び、スピーカと、電池ボックスをつなげて動作を確認します。
+
+<img src="imgs/instruction-out-1-4/0910-check.jpg" />
+
+動作がおかしい場合は、なるべく早く電源ケーブルを抜いて、ここまでの手順を確認してください。
+
+電源LEDの点灯と起動音と、OLEDに文字が表示されることを確認したら、スピーカと電池ボックスを外します。
+
+## ケースの組み立て
+
+スピーカをこのように配置します。
+
+<img src="imgs/instruction-out-next/1810-speaker.jpg" />
+
+電池ボックスに電池を入れ、電池を押さえる部品を写真のように用意します
+
+<img src="imgs/instruction-out-next/1820-battery.jpg" />
+
+電池を押さえる部品のねじ部分を時計回りに回して、電池ボックスを固定します。
+
+<img src="imgs/instruction-out-next/1830-battery-holder.jpg" />
+
+## ねじ止め
+
+写真のように、ナットを穴にそっと落とします。
+
+<img src="imgs/instruction-out-next/1910-nut.jpg" />
+
+スペーサー、アクリル板をねじで固定します。
+
+写真のように指でナットを押さえつつ、上からドライバーでねじ止めします。
+
+<img src="imgs/instruction-out-next/1920-driver.jpg" />
+
+最終的に、このようにナットが奥のほうで固定されます。
+これを4か所実施します。
+
+<img src="imgs/instruction-out-next/1930-bottom-nut.jpg" />
+
+## 完成
+
+お疲れさまでした。
+
+<img src="imgs/instruction-out-next/2010-finish.jpg" />
+
+</div>
+<div id="render">
+</div>
+<script>
+  (function(){
+    var elm = document.getElementById("contents");
+    var renderElm = document.getElementById("render");
+    var md = markdownit({html: true, linkify: true});
+    var htmlStr = md.render(elm.innerHTML);
+    renderElm.innerHTML = htmlStr;
+    elm.style.display = "none";
+  })();
+</script>
+</body>
+</html>

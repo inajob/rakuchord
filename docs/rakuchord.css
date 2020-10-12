@@ -5,13 +5,13 @@ body{
 }
 
 body{
-  background-color: #ffe;
+  background-color: #fef;
   font-size: 1.2em;
   line-height: 2em;
 }
 
 h1{
-  background-color: #993;
+  background-color: #939;
   color: #fff;
   padding: 1em;
   margin: 0;
@@ -20,7 +20,7 @@ h1{
 
 h2{
   background-color: #fff;
-  border: solid 6px #333;
+  border: solid 6px #3a3;
   border-radius: 10px 0px 0px 0px;
   border-width: 2px 2px 2px 12px;
   padding: 3px;
@@ -104,4 +104,17 @@ img.right{
 }
 .keep{
   word-break: keep-all;
+}
+
+.bug{
+  border: solid 1px red;
+  background-color: #fdd;
+  color: red;
+  padding: 3em;
+}
+
+.info{
+  border: solid 1px blue;
+  background-color: #ddf;
+  padding: 3em;
 }
