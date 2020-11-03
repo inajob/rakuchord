@@ -124,7 +124,7 @@ module jack_diff(){
 }
 
 // top
-translate([0,0,40]) difference(){
+*translate([0,0,40]) difference(){
     upper_case_outer();
     translate([0,0,0])linear_extrude(height=3){
       upper_hole();
@@ -219,7 +219,7 @@ module speaker_hold(){
 thread = "none"; //modeled
 
 
-translate([0,0,-34]){
+*translate([0,0,-34]){
     difference(){
         union(){
             linear_extrude(height = 36){
@@ -316,7 +316,7 @@ module battery_holder(){
         } 
     }
 }
-*battery_holder();
+battery_holder();
 
 module bolts(){
     hg = 8;  // height
@@ -324,7 +324,7 @@ module bolts(){
     clf = 55; // degrees
     cod = 9.5; // outer diameter
     crs = 1; // resolution
-    hex_screw(cod,sth,clf,20,1.5,2,15,5,0,0);
+    hex_screw(cod,sth,clf,20-5,1.5,2,15,5,3,0);
 }
 
 *translate([20,20,0]) bolts();
